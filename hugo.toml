@@ -1,4 +1,4 @@
-baseURL = 'https://yourusername.github.io/your-repo-name'
+baseURL = 'https://github.com/dnp314/khayal'
 languageCode = 'en-us'
 title = 'My Blog'
 theme = 'PaperMod'
