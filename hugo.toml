@@ -1,0 +1,18 @@
+baseURL = 'https://yourusername.github.io/your-repo-name'
+languageCode = 'en-us'
+title = 'My Blog'
+theme = 'PaperMod'
+
+[params]
+  description = "My personal blog"
+  author = "Your Name"
+
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 10
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 20
