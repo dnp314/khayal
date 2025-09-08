@@ -4,3 +4,8 @@ Loops
 
 List comprehension : flattening a 2d list, 
 Recursion
+
+
+Heaps
+heapq library
+

@@ -1,5 +1,4 @@
 +++
-date = 'Mehhhh'
 draft = false
 title = 'LeetcodingInGo'
 +++
