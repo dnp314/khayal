@@ -12,7 +12,8 @@ type Question struct {
 	Title       string         `json:"title"`
 	Description sql.NullString `json:"description,omitempty"`
 	IsAnswered  bool           `json:"-"`
-	CreatedAt   time.Time      `json:"created"`
+	ScheduledAt time.Time      `json:"scheduledAt"`
+	CreatedAt   time.Time      `json:"createdAt"`
 }
 
 type QuestionModel struct {
@@ -104,5 +105,53 @@ func (m *QuestionModel) GetAll(title string, genres []string, filters Filters) (
 	metadata := calculateMetaData(totalRecords, filters.Page, filters.Pagesize)
 
 	return questions, metadata, nil
+
+}
+
+func (m *QuestionModel) Delete(id int64) error {
+
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+		DELETE FROM movies
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+
+}
+
+func (m *QuestionModel) Insert(question *Question) error {
+
+	query := `
+	INSERT INTO questions(title, description)
+	VALUES($1, $2)
+	RETURNING id, created_at
+	`
+
+	args := []interface{}{question.Title, question.Description}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&question.ID, &question.CreatedAt)
 
 }

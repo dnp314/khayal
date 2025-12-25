@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"khayal/internal/data"
 	"khayal/internal/validator"
 	"net/http"
@@ -35,7 +37,34 @@ func (app *application) showQuestionHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) createQuestionHandler(w http.ResponseWriter, r *http.Request) {
 
-	app.writeJSON(w, http.StatusOK, envelope{"message": "hi"}, nil)
+	var input struct {
+		Title       string
+		Description sql.NullString
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	question := &data.Question{
+		Title:       input.Title,
+		Description: input.Description,
+	}
+
+	// TODO:adding validation
+
+	err = app.models.Question.Insert(question)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/questions/%d", question.ID))
+
+	app.writeJSON(w, http.StatusOK, envelope{"message": "question created successfully"}, headers)
 }
 
 func (app *application) listQuestionsHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +99,30 @@ func (app *application) listQuestionsHandler(w http.ResponseWriter, r *http.Requ
 
 	// is pointer aware
 	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies, "metadata": metadata}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteQuestionHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.Question.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
