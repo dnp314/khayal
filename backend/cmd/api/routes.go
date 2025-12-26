@@ -6,7 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *application) routes() *httprouter.Router {
+func (app *application) routes() http.Handler {
 
 	router := httprouter.New()
 	// NOTE: HanlderFunc() is an adapter to convert
@@ -25,5 +25,5 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/questions/:id/answers", app.listAnswersHandler)
 	router.HandlerFunc(http.MethodPost, "/answers", app.createAnswerHandler)
 
-	return router
+	return app.recoverPanic(router)
 }
