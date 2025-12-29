@@ -6,7 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *application) routes() *httprouter.Router {
+func (app *application) routes() http.Handler {
 
 	router := httprouter.New()
 	// NOTE: HanlderFunc() is an adapter to convert
@@ -15,14 +15,15 @@ func (app *application) routes() *httprouter.Router {
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
-	router.HandlerFunc(http.MethodGet, "/hello", app.hello)
 	// questions
 	router.HandlerFunc(http.MethodGet, "/questions/:id", app.showQuestionHandler)
-	router.HandlerFunc(http.MethodPost, "/questions", app.createQuestionHandler)
 	router.HandlerFunc(http.MethodGet, "/questions", app.listQuestionsHandler)
+	router.HandlerFunc(http.MethodPost, "/questions", app.createQuestionHandler)
+	router.HandlerFunc(http.MethodDelete, "/questions/:id", app.deleteQuestionHandler)
 	// answers
-	router.HandlerFunc(http.MethodGet, "/answers", app.hello)
-	router.HandlerFunc(http.MethodPost, "/answers", app.hello)
+	router.HandlerFunc(http.MethodGet, "/answers/:id", app.showAnswerHandler)
+	router.HandlerFunc(http.MethodGet, "/questions/:id/answers", app.listAnswersHandler)
+	router.HandlerFunc(http.MethodPost, "/answers", app.createAnswerHandler)
 
-	return router
+	return app.recoverPanic(router)
 }
