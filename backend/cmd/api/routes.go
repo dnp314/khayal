@@ -25,5 +25,5 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/questions/:id/answers", app.listAnswersHandler)
 	router.HandlerFunc(http.MethodPost, "/answers", app.createAnswerHandler)
 
-	return app.recoverPanic(router)
+	return app.recoverPanic(app.rateLimit(router))
 }

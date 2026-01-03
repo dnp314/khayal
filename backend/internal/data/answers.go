@@ -104,8 +104,8 @@ func (m *AnswerModel) GetAll(id int64) ([]*Answer, error) {
 
 func (m *AnswerModel) Insert(answer *Answer, question *Question) error {
 
-	//TODO: Rewrite with Transactions
-	// prepared statements do not allow multiple commands
+	// TODO: Rewrite with Transactions
+	// NOTE: prepared statements do not allow multiple commands
 	query1 := `
 	INSERT INTO answers(question_id, answer)
 	VALUES ($2, $1)
