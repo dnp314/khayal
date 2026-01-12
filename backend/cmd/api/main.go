@@ -4,10 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"khayal/internal/data"
 	"khayal/internal/jsonlog"
-	"net/http"
 	"os"
 	"time"
 
@@ -72,21 +70,11 @@ func main() {
 		logger: logger,
 		models: data.NewModels(db),
 	}
-	// overriding the default for these, there are many methods for this struct
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.routes(), // handles the requests
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-	logger.PrintInfo("starting server", map[string]string{
-		"addr": srv.Addr,
-		"env":  cfg.env,
-	})
 
-	err = srv.ListenAndServe() // initializes
-	logger.PrintFatal(err, nil)
+	err = app.serve()
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
 }
 
 func openDB(cfg config) (*sql.DB, error) {
