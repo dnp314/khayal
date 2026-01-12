@@ -62,7 +62,7 @@ func (m *AnswerModel) GetAll(id int64) ([]*Answer, error) {
 	query := `
 	SELECT a.id, a.question_id, q.title, a.answer
 	FROM answers a
-	LEFT JOIN questions q	
+	LEFT JOIN questions q
 	ON a.question_id = q.id
 	WHERE q.id=$1
 	`
