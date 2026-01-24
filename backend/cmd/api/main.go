@@ -6,7 +6,9 @@ import (
 	"flag"
 	"khayal/internal/data"
 	"khayal/internal/jsonlog"
+	"khayal/internal/mailer"
 	"os"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -30,12 +32,21 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
+	wg     sync.WaitGroup //acts as a counter for background tasks
 }
 
 func main() {
@@ -51,7 +62,11 @@ func main() {
 	flag.Float64Var(&cfg.limiter.rps, "rps", 2, "maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "busrt", 4, "maximum bursts")
 	flag.BoolVar(&cfg.limiter.enabled, "enabled", true, "enable rate limiting")
-
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "2e0670ad4cbf91", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "347dd6e21ca913", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Khayal <noreply@example.com>", "SMTP sender")
 	flag.Parse()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
@@ -69,6 +84,8 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username,
+			cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve()
