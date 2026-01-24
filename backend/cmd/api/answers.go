@@ -13,7 +13,7 @@ func (app *application) showAnswerHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	answer, err := app.models.Answer.Get(id)
+	answer, err := app.models.Answers.Get(id)
 
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -29,7 +29,7 @@ func (app *application) listAnswersHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	answers, err := app.models.Answer.GetAll(id)
+	answers, err := app.models.Answers.GetAll(id)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -38,6 +38,7 @@ func (app *application) listAnswersHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) createAnswerHandler(w http.ResponseWriter, r *http.Request) {
 
+	// QUESTION:there is a reason, why the third column is present, why should they be capitalized
 	var input struct {
 		Answer      string    `json:"answer"`
 		QuestionID  int       `json:"question_id"`
@@ -59,7 +60,7 @@ func (app *application) createAnswerHandler(w http.ResponseWriter, r *http.Reque
 		ScheduledAt: input.ScheduledAt,
 	}
 
-	err = app.models.Answer.Insert(answer, question)
+	err = app.models.Answers.Insert(answer, question)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -18,7 +18,7 @@ func (app *application) showQuestionHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	question, err := app.models.Question.Get(id)
+	question, err := app.models.Questions.Get(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -55,7 +55,7 @@ func (app *application) createQuestionHandler(w http.ResponseWriter, r *http.Req
 
 	// TODO:adding validation
 
-	err = app.models.Question.Insert(question)
+	err = app.models.Questions.Insert(question)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -91,7 +91,7 @@ func (app *application) listQuestionsHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	movies, metadata, err := app.models.Question.GetAll(input.Title, input.Genres, input.Filters)
+	movies, metadata, err := app.models.Questions.GetAll(input.Title, input.Genres, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -111,7 +111,7 @@ func (app *application) deleteQuestionHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = app.models.Question.Delete(id)
+	err = app.models.Questions.Delete(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
