@@ -68,6 +68,7 @@ func (app *application) createQuestionHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (app *application) listQuestionsHandler(w http.ResponseWriter, r *http.Request) {
+
 	var input struct {
 		Title  string
 		Genres []string
