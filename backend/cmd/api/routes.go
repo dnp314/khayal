@@ -16,14 +16,14 @@ func (app *application) routes() http.Handler {
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	// questions
-	router.HandlerFunc(http.MethodGet, "/questions/:id", app.showQuestionHandler)
-	router.HandlerFunc(http.MethodGet, "/questions", app.listQuestionsHandler)
-	router.HandlerFunc(http.MethodPost, "/questions", app.createQuestionHandler)
-	router.HandlerFunc(http.MethodDelete, "/questions/:id", app.deleteQuestionHandler)
+	router.HandlerFunc(http.MethodGet, "/questions/:id", app.requirePermission("questions:read", app.showQuestionHandler))
+	router.HandlerFunc(http.MethodGet, "/questions", app.requirePermission("questions:read", app.listQuestionsHandler))
+	router.HandlerFunc(http.MethodPost, "/questions", app.requirePermission("questions:write", app.createQuestionHandler))
+	router.HandlerFunc(http.MethodDelete, "/questions/:id", app.requirePermission("questions:write", app.deleteQuestionHandler))
 	// answers
-	router.HandlerFunc(http.MethodGet, "/answers/:id", app.showAnswerHandler)
-	router.HandlerFunc(http.MethodGet, "/questions/:id/answers", app.listAnswersHandler)
-	router.HandlerFunc(http.MethodPost, "/answers", app.createAnswerHandler)
+	router.HandlerFunc(http.MethodGet, "/answers/:id", app.requireActivatedUser(app.showAnswerHandler))
+	router.HandlerFunc(http.MethodGet, "/questions/:id/answers", app.requireActivatedUser(app.listAnswersHandler))
+	router.HandlerFunc(http.MethodPost, "/answers", app.requireActivatedUser(app.createAnswerHandler))
 	//users
 	router.HandlerFunc(http.MethodPost, "/users/", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/users/activated", app.activateUserHandler)
