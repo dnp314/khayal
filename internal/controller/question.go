@@ -1,24 +1,33 @@
 package controller
 
 import (
-	"context"
 	"fmt"
-	"net/http"
-	"os"
-
 	"khayal/internal/components"
 
 	"github.com/gin-gonic/gin"
 )
 
+var questions []string
+
 func CreateQuestion(c *gin.Context) {
-	c.String(http.StatusOK, "created")
+
+	question := c.PostForm("question")
+	questions = append(questions, question)
+	fmt.Println(questions)
+	fmt.Println("question received", question)
+	_ = components.Question(questions).Render(
+		c.Request.Context(),
+		c.Writer,
+	)
 }
-func GetQuestion(c *gin.Context) {
-	id := c.Param("id")
-	if id == "" {
-		fmt.Printf("What ?")
+
+func Home(c *gin.Context) {
+
+	err := components.Home().Render(
+		c.Request.Context(),
+		c.Writer,
+	)
+	if err != nil {
+		c.Error(err)
 	}
-	component := components.Hello(id)
-	component.Render(context.Background(), os.Stdout)
 }

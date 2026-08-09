@@ -1,0 +1,27 @@
+package components
+
+templ Question(questions []string) {
+
+	<div id="question-list">
+		for _, question := range questions {
+			<div>
+				{ question }
+			</div>
+		}
+	</div>
+	}
+
+templ CreateQuestion() {
+	<form
+		hx-post="/create_question"
+		hx-target="#question-list"
+		hx-swap="outerHTML"
+		hx-on::after-request="this.reset()"
+		>
+		<label for="question">What is up on your mind?</label>
+		<br/>
+		<input type="text" id="question" name="question" />
+		<br />
+		<button type="submit">Create</button>
+	</form>
+}

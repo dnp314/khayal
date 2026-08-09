@@ -14,11 +14,9 @@ func createRouter() *gin.Engine {
 		c.String(http.StatusOK, "healthy")
 	})
 
-	router.Group("/v1/view")
-
+	router.GET("", controller.Home)
 	// passing user as context
-	router.GET("/get_questions", controller.GetQuestion)
-	router.GET("/get_questions/:id", controller.GetQuestion)
+	//	router.POST("/create_question", controller.CreateQuestion)
 	router.POST("/create_question", controller.CreateQuestion)
 
 	return router

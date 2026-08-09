@@ -1,0 +1,21 @@
+package components
+
+templ Home() {
+	<html>
+
+    <h1>Khayal</h1>
+
+		<head>
+			<title>Questions</title>
+			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+		</head>
+
+		<body>
+			@CreateQuestion()
+
+			<div id="question-list">
+				@Question([]string{})
+			</div>
+		</body>
+	</html>
+}
