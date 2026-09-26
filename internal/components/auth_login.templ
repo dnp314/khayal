@@ -1,0 +1,26 @@
+package components
+
+templ LoginPage(errMsg string) {
+	@Layout("Login") {
+		@LoginForm(errMsg)
+	}
+}
+
+templ LoginForm(errMsg string) {
+	<div class="auth-container">
+		<h1>Log in</h1>
+		<div id="login-error">
+			@ErrorBanner(errMsg)
+		</div>
+		<form
+			hx-post="/login"
+			hx-target="#login-error"
+			hx-swap="innerHTML"
+		>
+			@FormField("username", "Username", "text", "username")
+			@FormField("password", "Password", "password", "password")
+			<button type="submit">Log in</button>
+		</form>
+		<p>No account? <a href="/register">Sign up</a></p>
+	</div>
+}

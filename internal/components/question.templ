@@ -1,27 +1,72 @@
 package components
 
-templ Question(questions []string) {
+import "github.com/dnp314/khayal/internal/entities"
+import "fmt"
 
-	<div id="question-list">
+
+
+templ CreateQuestion(placeholder string) {
+	<form
+		hx-post="/questions"
+		hx-target="#question-list"
+		hx-swap="outerHTML"
+		hx-on::after-request="this.reset()"
+		>
+		<input type="text" id="question" name="question" placeholder={placeholder} />
+		<button type="submit" >Ask</button>
+	</form>
+}
+
+templ Question(question entities.Question, khayals []entities.Khayal){
+
+	<h1>
+	{question.Question}
+	</h1>
+
+	@CreateKhayal(question.ID)
+	@Khayals(khayals)
+
+	}
+
+
+templ QuestionPage(
+	question entities.Question,
+	khayals []entities.Khayal,
+) {
+		@Layout(question.Question) {
+		<h2>{ question.Question }</h2>
+
+		@CreateKhayal(question.ID)
+		@Khayals(khayals)
+	}
+}
+
+templ Questions(questions []entities.Question) {
+
+
+  <script>
+	window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+        htmx.ajax("GET", "/questions", {
+            target: "#question-list",
+            select: "#question-list"
+        });
+    }
+	});
+	</script>
+
+	    <div
+        id="question-list"
+        hx-get="/questions"
+        hx-trigger="every 10s"
+        hx-target="#question-list"
+				hx-swap-oob="true"
+    >
 		for _, question := range questions {
-			<div>
-				{ question }
+			<div >
+				 <a href={ fmt.Sprintf("/questions/%d", question.ID) }>{ question.Question }</a>
 			</div>
 		}
 	</div>
 	}
 
-templ CreateQuestion() {
-	<form
-		hx-post="/create_question"
-		hx-target="#question-list"
-		hx-swap="outerHTML"
-		hx-on::after-request="this.reset()"
-		>
-		<label for="question">What is up on your mind?</label>
-		<br/>
-		<input type="text" id="question" name="question" />
-		<br />
-		<button type="submit">Create</button>
-	</form>
-}

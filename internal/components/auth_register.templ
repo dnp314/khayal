@@ -1,0 +1,27 @@
+package components
+
+templ RegisterPage(errMsg string) {
+	@Layout("Register") {
+		@RegisterForm(errMsg)
+	}
+}
+
+templ RegisterForm(errMsg string) {
+	<div class="auth-container">
+		<h1>Sign up</h1>
+		<div id="register-error">
+			@ErrorBanner(errMsg)
+		</div>
+		<form
+			hx-post="/register"
+			hx-target="#register-error"
+			hx-swap="innerHTML"
+			hx-on::after-request="this.reset()"
+		>
+			@FormField("username", "Username", "text", "username")
+			@FormField("password", "Password", "password", "password")
+			<button type="submit">Sign up</button>
+		</form>
+		<p>Already have an account? <a href="/login">Log in</a></p>
+	</div>
+}

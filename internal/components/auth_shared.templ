@@ -1,0 +1,21 @@
+package components
+
+templ FormField(id, label, inputType, fieldName string) {
+	<div class="form-field">
+		<label for={ id }>{ label }</label>
+		<input
+			type={ inputType }
+			id={ id }
+			name={ fieldName }
+			required
+		/>
+	</div>
+}
+
+templ ErrorBanner(message string) {
+	if message != "" {
+		<div class="error-banner" role="alert">
+			{ message }
+		</div>
+	}
+}

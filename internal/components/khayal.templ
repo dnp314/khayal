@@ -1,0 +1,40 @@
+package components
+
+import "github.com/dnp314/khayal/internal/entities"
+import "fmt"
+
+templ Khayals(khayals []entities.Khayal) {
+
+	<div id="khayal-list">
+		for _, khayal := range khayals {
+			<div>
+				@Khayal(khayal)
+			</div>
+		}
+	</div>
+	}
+
+templ CreateKhayal(questionID int) {
+	<form
+		hx-post={fmt.Sprintf("/questions/%d/khayals", questionID)}
+		hx-target="#khayal-list"
+		hx-swap="outerHTML"
+		hx-on::after-request="this.reset()"
+		>
+		<input type="text" id="khayal" name="khayal" placeholder="Your opinions" />
+		<button type="submit">Answer</button>
+	</form>
+}
+templ Khayal(khayal entities.Khayal) {
+	<article class="khayal-card">
+		<div class="khayal-card__content">
+			<p class="khayal-card__text">
+				{ khayal.Khayal }
+			</p>
+
+			<time class="khayal-card__date">
+				{ khayal.CreatedAt.Format("2 Jan 2006, 3:04 PM") }
+			</time>
+		</div>
+	</article>
+}
