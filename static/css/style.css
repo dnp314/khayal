@@ -1,49 +1,211 @@
+:root {
+  --bg: #0c0c0c;          /* PowerShell-style near-black */
+  --fg: #cccccc;
+  --muted: #7a7a7a;
+  --accent: #98c379;      /* the green used for strings in your screenshot */
+  --caret: #f9f1a5;       /* the pale yellow cursor */
+  --surface: #161616;
+  --border: #2e2e2e;
+  --mono: "Cascadia Code", "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+
 .container {
-    max-width: 768px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 a {
-	text-decoration: none;
-	color: inherit;
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  color: var(--accent);
 }
 
 body {
-	background: #323232;
-	color:white;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  line-height: 1.6;
 }
 
+h1, h2 {
+  font-weight: 600;
+}
+
+/* Cards: dark to match the page */
 .khayal-card {
-	background: white;
-	border: 1px solid #e5e7eb;
-	border-radius: 12px;
-	padding: 20px;
-	margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
 }
 
 .khayal-card__text {
-	margin: 0;
-	font-size: 1rem;
-	line-height: 1.6;
-	color: #1f2937;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--fg);
 }
 
 .khayal-card__date {
-	display: block;
-	margin-top: 12px;
-	font-size: 0.875rem;
-	color: #6b7280;
+  display: block;
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
+/* Form layout */
 form {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;   /* button stays level with the last line as the box grows */
   gap: 10px;
   margin: 50px 0;
 }
 
-#question, #khayal {
+form textarea {
+  box-sizing: border-box;
   width: 400px;
+  max-width: 100%;
+  min-height: 48px;
+  max-height: 200px;
+  padding: 11px 20px;      /* 24px line + 22px padding + 2px border = 48px, same as the button */
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 24px;
+  resize: none;
+  overflow-y: auto;
+  outline: none;
+  caret-color: #ffe66d;    /* solid, brighter */
+  caret-shape: block;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+form textarea::placeholder {
+  color: var(--muted);
+}
+
+form textarea:focus {
+  border-color: #4a4a4a;
+  box-shadow: 0 0 0 3px rgba(249, 241, 165, 0.08);
+}
+
+/* Scrollbar: thin, transparent track, inset so it doesn't collide with the rounded corners */
+form textarea::-webkit-scrollbar {
+  width: 10px;
+}
+form textarea::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 14px 0;          /* keeps the bar away from the curved corners */
+}
+form textarea::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;   /* makes the bar look slimmer */
+}
+form textarea::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  background-clip: content-box;
+}
+
+/* Firefox */
+@supports not selector(::-webkit-scrollbar) {
+  form textarea {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3a3a transparent;
+  }
+}
+
+/* Ask button: same height and shape language as the input */
+form button[type="submit"] {
+  height: 48px;                    /* matches the textarea's min-height */
+  padding: 0 22px;
+  background: var(--accent);
+  color: #0c0c0c;
+  border: none;
+  border-radius: 24px;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.05s;
+}
+
+form button[type="submit"]:hover {
+  filter: brightness(1.1);
+}
+
+form button[type="submit"]:active {
+  transform: scale(0.97);
+}
+
+/* Terminal-style markers for both lists */
+#question-list > div,
+#khayal-list > div {
+  position: relative;
+  padding: 6px 0 6px 28px;     /* room for the marker */
+}
+
+#question-list > div::before,
+#khayal-list > div::before {
+  content: ">";
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  transition: transform 0.15s;
+}
+
+#question-list > div:hover::before,
+#khayal-list > div:hover::before {
+  transform: translateX(4px);
+}
+
+/* Questions: clickable links */
+#question-list > div a {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+#question-list > div:hover a {
+  color: var(--accent);
+}
+
+/* Khayals: plain text, no card */
+.khayal-card {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.khayal-card__text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;       /* keeps line breaks typed with Shift+Enter */
+}
+
+.khayal-card__date {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+#khayal-list > div::before {
+  content: "↳";
+  color: var(--muted);
 }

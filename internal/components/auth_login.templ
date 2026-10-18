@@ -16,6 +16,7 @@ templ LoginForm(errMsg string) {
 			hx-post="/login"
 			hx-target="#login-error"
 			hx-swap="innerHTML"
+			hx-on::after-request="this.reset()"
 		>
 			@FormField("username", "Username", "text", "username")
 			@FormField("password", "Password", "password", "password")

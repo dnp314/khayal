@@ -16,15 +16,24 @@ templ Khayals(khayals []entities.Khayal) {
 
 templ CreateKhayal(questionID int) {
 	<form
-		hx-post={fmt.Sprintf("/questions/%d/khayals", questionID)}
+		hx-post={ fmt.Sprintf("/questions/%d/khayals", questionID) }
 		hx-target="#khayal-list"
 		hx-swap="outerHTML"
-		hx-on::after-request="this.reset()"
-		>
-		<input type="text" id="khayal" name="khayal" placeholder="Your opinions" />
+		hx-on::before-request="if (!this.khayal.value.trim()) event.preventDefault()"
+		hx-on::after-request="this.reset(); growTextarea(this.khayal)"
+	>
+		<textarea
+			id="khayal"
+			name="khayal"
+			rows="1"
+			placeholder="Your Opinions"
+			onkeydown="if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }"
+		></textarea>
 		<button type="submit">Answer</button>
 	</form>
 }
+
+
 templ Khayal(khayal entities.Khayal) {
 	<article class="khayal-card">
 		<div class="khayal-card__content">

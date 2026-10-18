@@ -9,7 +9,23 @@ templ Layout(title string) {
 			<title>{ title }</title>
 
 			<script src="/static/js/htmx.min.js"></script>
-
+			<script>
+			  function growTextarea(el) {
+			    const start = el.offsetHeight;
+			    el.style.height = 'auto';
+			    const end = Math.min(el.scrollHeight + 2, 200);   // +2 for the border, 200 = max-height
+			    el.style.height = end + 'px';
+			    if (start !== end) {
+			      el.animate(
+			        [{ height: start + 'px' }, { height: end + 'px' }],
+			        { duration: 120, easing: 'ease-out' }
+			      );
+			    }
+			  }
+			  document.addEventListener('input', (e) => {
+			    if (e.target.matches('form textarea')) growTextarea(e.target);
+			  });
+			</script>
 			<link rel="stylesheet" href="/static/css/style.css"/>
 		</head>
 

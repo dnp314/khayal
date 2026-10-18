@@ -12,6 +12,7 @@ import (
 
 type AuthService interface {
 	RegisterPost(ctx context.Context, username, password string) error
+	Login(ctx context.Context, username, password string) error
 }
 
 type AuthController struct {
@@ -41,24 +42,15 @@ func ShowRegister(ctx *gin.Context) {
 		log.Println(err)
 	}
 }
-func PostLogin(ctx *gin.Context) {
+func (ac *AuthController) Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
 
-	err := bcrypt.CompareHashAndPassword([]byte("abc"), []byte(password))
+	err := ac.service.Login(ctx, username, password)
 
-	if err != nil {
-		log.Println(username, err)
-	}
-
-	err = components.LoginPage("").Render(
-		ctx,
-		ctx.Writer,
-	)
 	if err != nil {
 		log.Println(err)
 	}
-
 }
 
 func (ac *AuthController) PostRegister(ctx *gin.Context) {

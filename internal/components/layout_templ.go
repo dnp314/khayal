@@ -42,7 +42,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><script src=\"/static/js/htmx.min.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"></head><body>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><script src=\"/static/js/htmx.min.js\"></script><script>\n\t\t\t  function growTextarea(el) {\n\t\t\t    const start = el.offsetHeight;\n\t\t\t    el.style.height = 'auto';\n\t\t\t    const end = Math.min(el.scrollHeight + 2, 200);   // +2 for the border, 200 = max-height\n\t\t\t    el.style.height = end + 'px';\n\t\t\t    if (start !== end) {\n\t\t\t      el.animate(\n\t\t\t        [{ height: start + 'px' }, { height: end + 'px' }],\n\t\t\t        { duration: 120, easing: 'ease-out' }\n\t\t\t      );\n\t\t\t    }\n\t\t\t  }\n\t\t\t  document.addEventListener('input', (e) => {\n\t\t\t    if (e.target.matches('form textarea')) growTextarea(e.target);\n\t\t\t  });\n\t\t\t</script><link rel=\"stylesheet\" href=\"/static/css/style.css\"></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

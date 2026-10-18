@@ -10,12 +10,20 @@ templ CreateQuestion(placeholder string) {
 		hx-post="/questions"
 		hx-target="#question-list"
 		hx-swap="outerHTML"
-		hx-on::after-request="this.reset()"
-		>
-		<input type="text" id="question" name="question" placeholder={placeholder} />
-		<button type="submit" >Ask</button>
+		hx-on::before-request="if (!this.question.value.trim()) event.preventDefault()"
+		hx-on::after-request="this.reset(); growTextarea(this.question)"
+	>
+		<textarea
+			id="question"
+			name="question"
+			rows="1"
+			placeholder={ placeholder }
+			onkeydown="if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }"
+		></textarea>
+		<button type="submit">Ask</button>
 	</form>
 }
+
 
 templ Question(question entities.Question, khayals []entities.Khayal){
 

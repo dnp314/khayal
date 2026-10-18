@@ -11,6 +11,8 @@ func createRouter(c Controllers) *gin.Engine {
 
 	router := gin.New()
 
+	// router.Use(middleware.RequestID())
+
 	router.GET("/health", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
@@ -18,7 +20,7 @@ func createRouter(c Controllers) *gin.Engine {
 	router.Static("/static", "./static")
 
 	router.GET("/login", controller.ShowLogin)
-	router.POST("/login", controller.PostLogin)
+	router.POST("/login", c.Auth.Login)
 	router.GET("/register", controller.ShowRegister)
 	router.POST("/register", c.Auth.PostRegister)
 	// passing user as context
