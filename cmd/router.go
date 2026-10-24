@@ -30,6 +30,7 @@ func createRouter(c Controllers) *gin.Engine {
 	router.GET("/questions", c.Questions.GetAllQuestions)
 	router.POST("/questions", c.Questions.CreateQuestion)
 	router.POST("/questions/:questionID/khayals", c.Khayals.CreateKhayal)
+	// router.GET("/questions/:questionID/khayals/:khayalID", c.Khayals.GetKhayal)
 
 	return router
 }

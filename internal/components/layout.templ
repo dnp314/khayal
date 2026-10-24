@@ -11,9 +11,12 @@ templ Layout(title string) {
 			<script src="/static/js/htmx.min.js"></script>
 			<script>
 			  function growTextarea(el) {
+			    const cs = getComputedStyle(el);
+			    const min = parseFloat(cs.minHeight) || 0;
+			    const max = parseFloat(cs.maxHeight) || Infinity;
 			    const start = el.offsetHeight;
 			    el.style.height = 'auto';
-			    const end = Math.min(el.scrollHeight + 2, 200);   // +2 for the border, 200 = max-height
+			    const end = Math.max(min, Math.min(el.scrollHeight + 2, max));
 			    el.style.height = end + 'px';
 			    if (start !== end) {
 			      el.animate(

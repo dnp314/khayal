@@ -29,21 +29,6 @@ func NewKhayalController(khayalService KhayalService, questionService QuestionSe
 	}
 }
 
-// func (c *KhayalController) Home(ctx *gin.Context) {
-// 	khayals, err := c.service.GetAllKhayals(ctx)
-// 	if err != nil {
-// 		ctx.Error(err)
-// 		return
-// 	}
-// 	err = components.Home(khayals).Render(
-// 		ctx.Request.Context(),
-// 		ctx.Writer,
-// 	)
-// 	if err != nil {
-// 		ctx.Error(err)
-// 	}
-// }
-
 func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 	khayal := ctx.PostForm("khayal")
 	questionID, _ := strconv.Atoi(ctx.Param("questionID"))

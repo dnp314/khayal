@@ -69,7 +69,7 @@ form {
 
 form textarea {
   box-sizing: border-box;
-  width: 400px;
+  width: 640px;
   max-width: 100%;
   min-height: 48px;
   max-height: 200px;
@@ -208,4 +208,25 @@ form button[type="submit"]:active {
 #khayal-list > div::before {
   content: "↳";
   color: var(--muted);
+}
+
+/* Khayal form: bigger, more prominent input */
+form.khayal-form {
+  flex-direction: column;     /* button goes below the box */
+  align-items: stretch;
+  max-width: 1280px;
+  margin: 32px auto;
+}
+
+form.khayal-form textarea {
+  width: 100%;
+  min-height: 160px;          /* starts big, still grows */
+  max-height: 400px;
+  padding: 18px 22px;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
+form.khayal-form button[type="submit"] {
+  align-self: flex-end;       /* button sits bottom-right */
 }
