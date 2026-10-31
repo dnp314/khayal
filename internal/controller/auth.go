@@ -2,16 +2,17 @@ package controller
 
 import (
 	"context"
-	"log"
+	"log/slog"
 
 	"github.com/dnp314/khayal/internal/components"
+	"github.com/dnp314/khayal/internal/dtos"
 	"github.com/gin-gonic/gin"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService interface {
-	RegisterPost(ctx context.Context, username, password string) error
+	RegisterPost(ctx context.Context, username, password, email string) error
 	Login(ctx context.Context, username, password string) error
 }
 
@@ -29,17 +30,17 @@ func NewAuthController(service AuthService) *AuthController {
 func ShowLogin(ctx *gin.Context) {
 	err := components.LoginPage("").Render(ctx.Request.Context(), ctx.Writer)
 	if err != nil {
-		log.Println(err)
+		slog.Error("render login page", "error", err)
 	}
 }
 
 func ShowRegister(ctx *gin.Context) {
 	err := components.RegisterPage("").Render(
-		ctx,
+		ctx.Request.Context(),
 		ctx.Writer,
 	)
 	if err != nil {
-		log.Println(err)
+		slog.Error("render register page", "error", err)
 	}
 }
 func (ac *AuthController) Login(ctx *gin.Context) {
@@ -47,24 +48,47 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 
 	err := ac.service.Login(ctx, username, password)
-
 	if err != nil {
-		log.Println(err)
+		slog.Error("login failed", "username", username, "error", err)
+		if renderErr := components.LoginPage("Invalid username or password").
+			Render(ctx.Request.Context(), ctx.Writer); renderErr != nil {
+			slog.Error("render login page after failed login", "error", renderErr)
+		}
+		return
 	}
 }
 
 func (ac *AuthController) PostRegister(ctx *gin.Context) {
-	username := ctx.PostForm("username")
-	password := ctx.PostForm("password")
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println(username, err)
+	var req dtos.RegisterRequest
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		slog.Warn("invalid registration request", "error", err)
+		// re-render the form with an error message
+		if renderErr := components.RegisterPage("Invalid input: check username, email and password").
+			Render(ctx.Request.Context(), ctx.Writer); renderErr != nil {
+			slog.Error("render register page after invalid input", "error", renderErr)
+		}
+		return
 	}
 
-	err = ac.service.RegisterPost(ctx, username, string(passwordHash))
-
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println(err)
+		slog.Error("hash password", "username", req.Username, "error", err)
+		if renderErr := components.RegisterPage("Unable to create account").
+			Render(ctx.Request.Context(), ctx.Writer); renderErr != nil {
+			slog.Error("render register page after password hash failure", "error", renderErr)
+		}
+		return
+	}
+
+	err = ac.service.RegisterPost(ctx, req.Username, string(passwordHash), req.Email)
+	if err != nil {
+		slog.Error("register user", "username", req.Username, "error", err)
+		if renderErr := components.RegisterPage("Unable to create account").
+			Render(ctx.Request.Context(), ctx.Writer); renderErr != nil {
+			slog.Error("render register page after registration failure", "error", renderErr)
+		}
+		return
 	}
 }

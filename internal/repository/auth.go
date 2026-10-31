@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/dnp314/khayal/internal/entities"
 	"github.com/jackc/pgx/v5"
@@ -19,21 +19,24 @@ func NewAuthRepostiory(db *pgx.Conn) *AuthRepository {
 
 }
 
-func (r *AuthRepository) PostRegister(ctx context.Context, username string, password string) error {
+func (r *AuthRepository) PostRegister(ctx context.Context, username, password, email string) error {
 	_, err := r.db.Exec(
 		ctx,
-		`insert into users (name ,passwordhash)
-		values ($1, $2)`,
-		username, password,
+		`insert into users (name ,password_hash, email)
+		values ($1, $2, $3)`,
+		username, password, email,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("insert user: %w", err)
+	}
+	return nil
 }
 
 func (r *AuthRepository) GetUserByName(ctx context.Context, username string) (entities.User, error) {
 	var user entities.User
 	err := r.db.QueryRow(
 		ctx,
-		`select id, name, passwordhash
+		`select id, name, password_hash
 		from users
 		where name=($1)`,
 		username,
@@ -43,7 +46,7 @@ func (r *AuthRepository) GetUserByName(ctx context.Context, username string) (en
 		&user.PasswordHash,
 	)
 	if err != nil {
-		log.Println(err)
+		return entities.User{}, fmt.Errorf("get user by name %q: %w", username, err)
 	}
 	return user, nil
 }

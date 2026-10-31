@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/dnp314/khayal/internal/entities"
 
@@ -28,8 +28,11 @@ func (r *QuestionRepository) CreateQuestion(ctx context.Context, question string
 		"INSERT INTO questions (question) VALUES ($1)",
 		question,
 	)
+	if err != nil {
+		return fmt.Errorf("insert question: %w", err)
+	}
 
-	return err
+	return nil
 }
 
 func (r *QuestionRepository) GetQuestion(ctx context.Context, id int) (entities.Question, error) {
@@ -44,10 +47,10 @@ func (r *QuestionRepository) GetQuestion(ctx context.Context, id int) (entities.
 		&question.Answered,
 	)
 	if err != nil {
-		log.Println(err)
+		return entities.Question{}, fmt.Errorf("get question %d: %w", id, err)
 	}
 
-	return question, err
+	return question, nil
 }
 
 func (r *QuestionRepository) GetAllQuestions(ctx context.Context) ([]entities.Question, error) {
@@ -61,7 +64,7 @@ func (r *QuestionRepository) GetAllQuestions(ctx context.Context) ([]entities.Qu
 		`,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query questions: %w", err)
 	}
 	defer rows.Close()
 
@@ -78,14 +81,14 @@ func (r *QuestionRepository) GetAllQuestions(ctx context.Context) ([]entities.Qu
 			&q.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan question: %w", err)
 		}
 
 		questions = append(questions, q)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iterate questions: %w", err)
 	}
 
 	return questions, nil

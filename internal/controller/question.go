@@ -2,11 +2,13 @@ package controller
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 
 	"github.com/dnp314/khayal/internal/entities"
+	"github.com/dnp314/khayal/internal/service"
 
 	"github.com/dnp314/khayal/internal/components"
 
@@ -34,7 +36,8 @@ func NewQuestionController(questionService QuestionService, khayalService Khayal
 func (c *QuestionController) Home(ctx *gin.Context) {
 	questions, err := c.questionService.GetAllQuestions(ctx)
 	if err != nil {
-		ctx.Error(err)
+		slog.Error("get questions for home page", "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load questions")
 		return
 	}
 	err = components.HomePage(questions).Render(
@@ -42,7 +45,7 @@ func (c *QuestionController) Home(ctx *gin.Context) {
 		ctx.Writer,
 	)
 	if err != nil {
-		ctx.Error(err)
+		slog.Error("render home page", "error", err)
 	}
 }
 
@@ -51,26 +54,38 @@ func (c *QuestionController) CreateQuestion(ctx *gin.Context) {
 	question := ctx.PostForm("question")
 	err := c.questionService.CreateQuestion(ctx, question)
 	if err != nil {
-		if err.Error() == "title cannot be empty" {
-			fmt.Println("Question can't be empty")
-		} else {
-			fmt.Println("Error", err)
+		if errors.Is(err, service.ErrEmptyQuestion) {
+			slog.Warn("reject empty question")
+			ctx.String(http.StatusBadRequest, "Question can't be empty")
 			return
 		}
+
+		slog.Error("create question", "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to create question")
+		return
 	}
 
-	questions, _ := c.questionService.GetAllQuestions(ctx)
+	questions, err := c.questionService.GetAllQuestions(ctx)
+	if err != nil {
+		slog.Error("get questions after creating question", "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load questions")
+		return
+	}
 
-	_ = components.Questions(questions).Render(
+	err = components.Questions(questions).Render(
 		ctx.Request.Context(),
 		ctx.Writer,
 	)
+	if err != nil {
+		slog.Error("render questions after creation", "error", err)
+	}
 
 }
 
 func (c *QuestionController) GetQuestion(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
+		slog.Warn("invalid question id", "id", ctx.Param("id"), "error", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid id",
 		})
@@ -78,22 +93,39 @@ func (c *QuestionController) GetQuestion(ctx *gin.Context) {
 	}
 	question, err := c.questionService.GetQuestion(ctx.Request.Context(), id)
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("get question", "question_id", id, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load question")
+		return
 	}
-	khayals, _ := c.khayalService.GetAllKhayals(ctx, id)
+	khayals, err := c.khayalService.GetAllKhayals(ctx, id)
+	if err != nil {
+		slog.Error("get khayals for question", "question_id", id, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load khayals")
+		return
+	}
 
-	fmt.Println(question)
-	_ = components.QuestionPage(question, khayals).Render(
-		ctx,
+	err = components.QuestionPage(question, khayals).Render(
+		ctx.Request.Context(),
 		ctx.Writer,
 	)
+	if err != nil {
+		slog.Error("render question page", "question_id", id, "error", err)
+	}
 }
 
 func (c *QuestionController) GetAllQuestions(ctx *gin.Context) {
 
-	questions, _ := c.questionService.GetAllQuestions(ctx)
-	_ = components.Questions(questions).Render(
-		ctx,
+	questions, err := c.questionService.GetAllQuestions(ctx)
+	if err != nil {
+		slog.Error("get all questions", "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load questions")
+		return
+	}
+	err = components.Questions(questions).Render(
+		ctx.Request.Context(),
 		ctx.Writer,
 	)
+	if err != nil {
+		slog.Error("render questions", "error", err)
+	}
 }

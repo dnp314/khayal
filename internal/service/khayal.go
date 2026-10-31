@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/dnp314/khayal/internal/entities"
 )
+
+var ErrEmptyKhayal = errors.New("khayal cannot be empty")
 
 type KhayalRepository interface {
 	CreateKhayal(ctx context.Context, questionID int, khayal string, returnAt time.Time) error
@@ -28,12 +31,11 @@ func NewKhayalService(KhayalRepo KhayalRepository, QuestionRepo QuestionReposito
 }
 
 func (s *KhayalService) CreateKhayal(ctx context.Context, questionID int, khayal string) error {
-	if khayal == "" {
-		return errors.New("title cannot be empty")
+	if strings.TrimSpace(khayal) == "" {
+		return ErrEmptyKhayal
 	}
-	err := s.KhayalRepo.CreateKhayal(ctx, questionID, khayal, time.Now().Add(1*time.Minute))
-	if err != nil {
-		return err
+	if err := s.KhayalRepo.CreateKhayal(ctx, questionID, khayal, time.Now().Add(1*time.Minute)); err != nil {
+		return fmt.Errorf("create khayal: %w", err)
 	}
 	return nil
 }
@@ -49,9 +51,8 @@ func (s *KhayalService) CreateKhayal(ctx context.Context, questionID int, khayal
 func (s *KhayalService) GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error) {
 
 	khayals, err := s.KhayalRepo.GetAllKhayals(ctx, questionID)
-	fmt.Println(khayals)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get all khayals for question %d: %w", questionID, err)
 	}
 
 	return khayals, nil

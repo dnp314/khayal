@@ -2,7 +2,7 @@ package utils
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -11,18 +11,20 @@ import (
 func StartReturnTimeChecker(db *pgx.Conn) {
 
 	for {
-		log.Println("Checking...")
+		slog.Debug("checking question return times")
 		time.Sleep(1 * time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		_, err := db.Exec(
-			context.TODO(),
+			ctx,
 			`update questions
 			 set answered = false
 			 where return_at <= current_timestamp
 			 and answered = true
 			`,
 		)
+		cancel()
 		if err != nil {
-			return
+			slog.Error("update question return times", "error", err)
 		}
 
 	}

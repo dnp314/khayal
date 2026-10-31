@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/dnp314/khayal/internal/entities"
@@ -23,12 +24,11 @@ func NewKhayalRepostiory(db *pgx.Conn) *KhayalRepository {
 func (r *KhayalRepository) CreateKhayal(ctx context.Context, questionID int, khayal string, returnAt time.Time) error {
 	_, err := r.db.Exec(
 		ctx,
-		"INSERT INTO khayals (content,question_id) VALUES ($1, $2)",
+		"INSERT INTO khayals (khayal,question_id) VALUES ($1, $2)",
 		khayal, questionID,
 	)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("insert khayal for question %d: %w", questionID, err)
 	}
 
 	_, err = r.db.Exec(
@@ -41,10 +41,10 @@ func (r *KhayalRepository) CreateKhayal(ctx context.Context, questionID int, kha
 		questionID, returnAt,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("mark question %d answered: %w", questionID, err)
 	}
 
-	return err
+	return nil
 }
 
 // func (r *KhayalRepository) GetKhayal(ctx context.Context, id int) (entities.Khayal, error) {
@@ -67,7 +67,7 @@ func (r *KhayalRepository) CreateKhayal(ctx context.Context, questionID int, kha
 func (r *KhayalRepository) GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error) {
 
 	rows, err := r.db.Query(ctx,
-		`SELECT k.id, k.content, k.created_at
+		`SELECT k.id, k.khayal, k.created_at
 			FROM khayals k
 			JOIN questions q ON q.id = k.question_id
 			WHERE k.question_id = $1
@@ -81,7 +81,7 @@ func (r *KhayalRepository) GetAllKhayals(ctx context.Context, questionID int) ([
 		`,
 		questionID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query khayals for question %d: %w", questionID, err)
 	}
 	defer rows.Close()
 
@@ -95,14 +95,14 @@ func (r *KhayalRepository) GetAllKhayals(ctx context.Context, questionID int) ([
 			&q.Khayal,
 			&q.CreatedAt)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan khayal for question %d: %w", questionID, err)
 		}
 
 		khayals = append(khayals, q)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iterate khayals for question %d: %w", questionID, err)
 	}
 
 	return khayals, nil

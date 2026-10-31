@@ -2,11 +2,14 @@ package controller
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"log/slog"
+	"net/http"
 	"strconv"
 
 	"github.com/dnp314/khayal/internal/components"
 	"github.com/dnp314/khayal/internal/entities"
+	"github.com/dnp314/khayal/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,28 +34,53 @@ func NewKhayalController(khayalService KhayalService, questionService QuestionSe
 
 func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 	khayal := ctx.PostForm("khayal")
-	questionID, _ := strconv.Atoi(ctx.Param("questionID"))
-	err := c.khayalService.CreateKhayal(ctx, questionID, khayal)
+	questionID, err := strconv.Atoi(ctx.Param("questionID"))
 	if err != nil {
-		if err.Error() == "title cannot be empty" {
-			fmt.Println("Question can't be empty")
-		} else {
-			fmt.Println("Error", err)
-			return
-		}
+		slog.Warn("invalid question id", "id", ctx.Param("questionID"), "error", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid id",
+		})
+		return
 	}
 
-	khayals, _ := c.khayalService.GetAllKhayals(ctx, questionID)
-	_ = components.Khayals(khayals).Render(
-		ctx.Request.Context(),
-		ctx.Writer,
-	)
+	err = c.khayalService.CreateKhayal(ctx, questionID, khayal)
+	if err != nil {
+		if errors.Is(err, service.ErrEmptyKhayal) {
+			slog.Warn("reject empty khayal", "question_id", questionID)
+			ctx.String(http.StatusBadRequest, "Khayal can't be empty")
+			return
+		}
 
-	questions, _ := c.questionService.GetAllQuestions(ctx)
-	_ = components.Questions(questions).Render(
+		slog.Error("create khayal", "question_id", questionID, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to create khayal")
+		return
+	}
+
+	khayals, err := c.khayalService.GetAllKhayals(ctx, questionID)
+	if err != nil {
+		slog.Error("get khayals after creation", "question_id", questionID, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load khayals")
+		return
+	}
+	if err := components.Khayals(khayals).Render(
 		ctx.Request.Context(),
 		ctx.Writer,
-	)
+	); err != nil {
+		slog.Error("render khayals after creation", "question_id", questionID, "error", err)
+		return
+	}
+
+	questions, err := c.questionService.GetAllQuestions(ctx)
+	if err != nil {
+		slog.Error("get questions after creating khayal", "question_id", questionID, "error", err)
+		return
+	}
+	if err := components.Questions(questions).Render(
+		ctx.Request.Context(),
+		ctx.Writer,
+	); err != nil {
+		slog.Error("render questions after creating khayal", "question_id", questionID, "error", err)
+	}
 }
 
 // func (c *KhayalController) GetKhayal(ctx *gin.Context) {

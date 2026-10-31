@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"errors"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -19,15 +19,23 @@ type Controllers struct {
 	Auth      *controller.AuthController
 }
 
-func main() {
+const port = "8000"
 
+func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+
+	ctx := context.Background()
 	urlExample := "postgres://khayal:khayal@localhost:5432/khayal"
-	conn, err := pgx.Connect(context.Background(), urlExample)
+	conn, err := pgx.Connect(ctx, urlExample)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		slog.Error("unable to connect to database", "error", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer func() {
+		if err := conn.Close(ctx); err != nil {
+			slog.Error("unable to close database connection", "error", err)
+		}
+	}()
 
 	// go utils.StartReturnTimeChecker(conn)
 
@@ -52,12 +60,14 @@ func main() {
 	router := createRouter(controllers)
 
 	server := http.Server{
-		Addr:    ":8000",
+		Addr:    ":" + port,
 		Handler: router,
 	}
 
+	slog.Info("starting server", "addr", server.Addr)
 	err = server.ListenAndServe()
-	if err != nil {
-		log.Fatal("server did not start")
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		slog.Error("server stopped unexpectedly", "error", err)
+		os.Exit(1)
 	}
 }

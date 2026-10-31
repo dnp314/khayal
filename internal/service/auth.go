@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"log/slog"
 
 	"github.com/dnp314/khayal/internal/entities"
@@ -10,7 +10,7 @@ import (
 )
 
 type AuthRepository interface {
-	PostRegister(ctx context.Context, username string, password string) error
+	PostRegister(ctx context.Context, username, password, email string) error
 	GetUserByName(ctx context.Context, username string) (entities.User, error)
 }
 
@@ -24,31 +24,25 @@ func NewAuthService(repo AuthRepository) *AuthService {
 	}
 }
 
-func (s *AuthService) RegisterPost(ctx context.Context, username, password string) error {
-	err := s.repo.PostRegister(ctx, username, password)
-	if err != nil {
-		log.Println(err)
+func (s *AuthService) RegisterPost(ctx context.Context, username, password, email string) error {
+	if err := s.repo.PostRegister(ctx, username, password, email); err != nil {
+		return fmt.Errorf("register user %q: %w", username, err)
 	}
 
-	slog.Info("user created", "username", username)
+	slog.Info("user registered", "username", username)
 	return nil
 }
 
 func (s *AuthService) Login(ctx context.Context, username, password string) error {
 	user, err := s.repo.GetUserByName(ctx, username)
 	if err != nil {
-		slog.Error("get user", "user", user, "err", err)
-	}
-	if user.ID == 0 {
-		log.Println("register first")
+		return fmt.Errorf("login user %q: %w", username, err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
-	if err != nil {
-		log.Println(err)
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return fmt.Errorf("verify password for user %q: %w", username, err)
 	}
-	log.Println("logged in")
 
+	slog.Info("user logged in", "username", username)
 	return nil
-
 }

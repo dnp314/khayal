@@ -3,9 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/dnp314/khayal/internal/entities"
 )
+
+var ErrEmptyQuestion = errors.New("question cannot be empty")
 
 type QuestionRepository interface {
 	CreateQuestion(ctx context.Context, question string) error
@@ -24,12 +28,11 @@ func NewQuestionService(repo QuestionRepository) *QuestionService {
 }
 
 func (s *QuestionService) CreateQuestion(ctx context.Context, question string) error {
-	if question == "" {
-		return errors.New("title cannot be empty")
+	if strings.TrimSpace(question) == "" {
+		return ErrEmptyQuestion
 	}
-	err := s.repo.CreateQuestion(ctx, question)
-	if err != nil {
-		return err
+	if err := s.repo.CreateQuestion(ctx, question); err != nil {
+		return fmt.Errorf("create question: %w", err)
 	}
 	return nil
 }
@@ -37,7 +40,7 @@ func (s *QuestionService) CreateQuestion(ctx context.Context, question string) e
 func (s *QuestionService) GetQuestion(ctx context.Context, id int) (entities.Question, error) {
 	question, err := s.repo.GetQuestion(ctx, id)
 	if err != nil {
-		return entities.Question{}, err
+		return entities.Question{}, fmt.Errorf("get question: %w", err)
 	}
 	return question, nil
 }
@@ -45,7 +48,7 @@ func (s *QuestionService) GetQuestion(ctx context.Context, id int) (entities.Que
 func (s *QuestionService) GetAllQuestions(ctx context.Context) ([]entities.Question, error) {
 	questions, err := s.repo.GetAllQuestions(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get all questions: %w", err)
 	}
 	return questions, nil
 }
