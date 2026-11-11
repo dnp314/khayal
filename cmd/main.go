@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/dnp314/khayal/internal/controller"
+	"github.com/dnp314/khayal/internal/middleware"
 	"github.com/dnp314/khayal/internal/repository"
 	"github.com/dnp314/khayal/internal/service"
 	"github.com/jackc/pgx/v5"
@@ -57,7 +58,7 @@ func main() {
 		Auth:      authController,
 	}
 
-	router := createRouter(controllers)
+	router := createRouter(controllers, middleware.Auth(authService))
 
 	server := http.Server{
 		Addr:    ":" + port,

@@ -70,9 +70,14 @@ func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 		return
 	}
 
-	questions, err := c.questionService.GetAllQuestions(ctx)
+	userID, ok := requireUserID(ctx)
+	if !ok {
+		return
+	}
+
+	questions, err := c.questionService.GetAllQuestions(ctx, userID)
 	if err != nil {
-		slog.Error("get questions after creating khayal", "question_id", questionID, "error", err)
+		slog.Error("get questions after creating khayal", "question_id", questionID, "user_id", userID, "error", err)
 		return
 	}
 	if err := components.Questions(questions).Render(
