@@ -6,17 +6,19 @@ should i use AI ? reasonably YES
 
 # issues
 - more than one khayal can be written at once
-- plain text contents
+- plain text contents stored in db
 
 # features
 - users
 - placeholder showing various questions
 - date picker
+- slug instead of id
 
 # dev
 - logging/error handling: handled but have to take a look
 - migrations
 - dockerize
+- testing
 
 
 

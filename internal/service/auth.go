@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -13,11 +14,14 @@ import (
 
 const SessionDuration = 7 * 24 * time.Hour
 
+var ErrSessionExpired = errors.New("session expired")
+
 type AuthRepository interface {
 	PostRegister(ctx context.Context, username, password, email string) error
 	GetUserByName(ctx context.Context, username string) (entities.User, error)
-	CreateSession(ctx context.Context, token string, userID int, expiresAt time.Time) error
-	GetUserBySession(ctx context.Context, token string) (entities.User, error)
+	GetUserByID(ctx context.Context, id int) (entities.User, error)
+	CreateSession(ctx context.Context, session entities.Session) error
+	GetSession(ctx context.Context, token string) (entities.Session, error)
 	DeleteSession(ctx context.Context, token string) error
 }
 
@@ -70,10 +74,23 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 }
 
 func (s *AuthService) ValidateSession(ctx context.Context, token string) (entities.User, error) {
-	user, err := s.repo.GetUserBySession(ctx, token)
+	session, err := s.repo.GetSession(ctx, token)
 	if err != nil {
 		return entities.User{}, fmt.Errorf("validate session: %w", err)
 	}
+
+	if !time.Now().Before(session.ExpiresAt) {
+		if err := s.repo.DeleteSession(ctx, token); err != nil {
+			slog.Error("delete expired session", "user_id", session.UserID, "error", err)
+		}
+		return entities.User{}, ErrSessionExpired
+	}
+
+	user, err := s.repo.GetUserByID(ctx, session.UserID)
+	if err != nil {
+		return entities.User{}, fmt.Errorf("get user for session: %w", err)
+	}
+
 	return user, nil
 }
 
@@ -85,10 +102,13 @@ func (s *AuthService) Logout(ctx context.Context, token string) error {
 }
 
 func (s *AuthService) createSession(ctx context.Context, userID int) (string, error) {
-	token := uuid.NewString()
-	expiresAt := time.Now().Add(SessionDuration)
-	if err := s.repo.CreateSession(ctx, token, userID, expiresAt); err != nil {
+	session := entities.Session{
+		ID:        uuid.NewString(),
+		UserID:    userID,
+		ExpiresAt: time.Now().Add(SessionDuration),
+	}
+	if err := s.repo.CreateSession(ctx, session); err != nil {
 		return "", fmt.Errorf("create session for user %d: %w", userID, err)
 	}
-	return token, nil
+	return session.ID, nil
 }

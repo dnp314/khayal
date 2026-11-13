@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/dnp314/khayal/internal/entities"
 	"github.com/jackc/pgx/v5"
@@ -53,28 +52,14 @@ func (r *AuthRepository) GetUserByName(ctx context.Context, username string) (en
 	return user, nil
 }
 
-func (r *AuthRepository) CreateSession(ctx context.Context, token string, userID int, expiresAt time.Time) error {
-	_, err := r.db.Exec(
-		ctx,
-		`insert into sessions (id, user_id, expires_at)
-		values ($1, $2, $3)`,
-		token, userID, expiresAt,
-	)
-	if err != nil {
-		return fmt.Errorf("insert session for user %d: %w", userID, err)
-	}
-	return nil
-}
-
-func (r *AuthRepository) GetUserBySession(ctx context.Context, token string) (entities.User, error) {
+func (r *AuthRepository) GetUserByID(ctx context.Context, id int) (entities.User, error) {
 	var user entities.User
 	err := r.db.QueryRow(
 		ctx,
-		`select u.id, u.name, u.email, u.password_hash
-		from sessions s
-		join users u on u.id = s.user_id
-		where s.id = $1 and s.expires_at > current_timestamp`,
-		token,
+		`select id, name, email, password_hash
+		from users
+		where id=($1)`,
+		id,
 	).Scan(
 		&user.ID,
 		&user.Name,
@@ -82,9 +67,42 @@ func (r *AuthRepository) GetUserBySession(ctx context.Context, token string) (en
 		&user.PasswordHash,
 	)
 	if err != nil {
-		return entities.User{}, fmt.Errorf("get user by session: %w", err)
+		return entities.User{}, fmt.Errorf("get user %d: %w", id, err)
 	}
 	return user, nil
+}
+
+func (r *AuthRepository) CreateSession(ctx context.Context, session entities.Session) error {
+	_, err := r.db.Exec(
+		ctx,
+		`insert into sessions (id, user_id, expires_at)
+		values ($1, $2, $3)`,
+		session.ID, session.UserID, session.ExpiresAt,
+	)
+	if err != nil {
+		return fmt.Errorf("insert session for user %d: %w", session.UserID, err)
+	}
+	return nil
+}
+
+func (r *AuthRepository) GetSession(ctx context.Context, token string) (entities.Session, error) {
+	var session entities.Session
+	err := r.db.QueryRow(
+		ctx,
+		`select id, user_id, expires_at, created_at
+		from sessions
+		where id = $1`,
+		token,
+	).Scan(
+		&session.ID,
+		&session.UserID,
+		&session.ExpiresAt,
+		&session.CreatedAt,
+	)
+	if err != nil {
+		return entities.Session{}, fmt.Errorf("get session: %w", err)
+	}
+	return session, nil
 }
 
 func (r *AuthRepository) DeleteSession(ctx context.Context, token string) error {
