@@ -41,6 +41,27 @@ func Auth(auth SessionService) gin.HandlerFunc {
 	}
 }
 
+func OptionalAuth(auth SessionService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := c.Cookie(SessionCookieName)
+		if err != nil {
+			c.Next()
+			return
+		}
+
+		user, err := auth.ValidateSession(c.Request.Context(), token)
+		if err != nil {
+			slog.Warn("invalid session", "error", err)
+			ClearSessionCookie(c)
+			c.Next()
+			return
+		}
+
+		c.Set(UserIDContextKey, user.ID)
+		c.Next()
+	}
+}
+
 func SetSessionCookie(c *gin.Context, token string, maxAge int) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(SessionCookieName, token, maxAge, "/", "", false, true)

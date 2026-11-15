@@ -34,6 +34,7 @@ func (s *KhayalService) CreateKhayal(ctx context.Context, questionID int, khayal
 	if strings.TrimSpace(khayal) == "" {
 		return ErrEmptyKhayal
 	}
+	// return time should be random or fixed if decided
 	if err := s.KhayalRepo.CreateKhayal(ctx, questionID, khayal, time.Now().Add(1*time.Minute)); err != nil {
 		return fmt.Errorf("create khayal: %w", err)
 	}

@@ -7,6 +7,7 @@ type Question struct {
 	UserID    int
 	Question  string
 	Answered  bool
+	ReturnAt  time.Time
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

@@ -35,8 +35,11 @@ func NewQuestionController(questionService QuestionService, khayalService Khayal
 }
 
 func (c *QuestionController) Home(ctx *gin.Context) {
-	userID, ok := requireUserID(ctx)
+	ctx.Header("Vary", "Cookie")
+
+	userID, ok := getUserID(ctx)
 	if !ok {
+		c.renderAbout(ctx)
 		return
 	}
 
@@ -52,6 +55,12 @@ func (c *QuestionController) Home(ctx *gin.Context) {
 	)
 	if err != nil {
 		slog.Error("render home page", "user_id", userID, "error", err)
+	}
+}
+
+func (c *QuestionController) renderAbout(ctx *gin.Context) {
+	if err := components.AboutPage().Render(ctx.Request.Context(), ctx.Writer); err != nil {
+		slog.Error("render about page", "error", err)
 	}
 }
 
@@ -149,17 +158,20 @@ func (c *QuestionController) GetAllQuestions(ctx *gin.Context) {
 	}
 }
 
-func requireUserID(ctx *gin.Context) (int, bool) {
+func getUserID(ctx *gin.Context) (int, bool) {
 	value, exists := ctx.Get(middleware.UserIDContextKey)
 	if !exists {
-		slog.Error("user id missing from request context")
-		ctx.String(http.StatusUnauthorized, "Unauthorized")
 		return 0, false
 	}
 
 	userID, ok := value.(int)
+	return userID, ok
+}
+
+func requireUserID(ctx *gin.Context) (int, bool) {
+	userID, ok := getUserID(ctx)
 	if !ok {
-		slog.Error("invalid user id in request context", "value", value)
+		slog.Error("user id missing from request context")
 		ctx.String(http.StatusUnauthorized, "Unauthorized")
 		return 0, false
 	}
