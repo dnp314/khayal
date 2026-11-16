@@ -230,3 +230,93 @@ form.khayal-form textarea {
 form.khayal-form button[type="submit"] {
   align-self: flex-end;       /* button sits bottom-right */
 }
+
+/* Auth and account forms */
+.auth-container {
+  max-width: 520px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.auth-container form {
+  flex-direction: column;
+  align-items: stretch;
+  margin: 1.5rem 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.form-field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.auth-container form button[type="submit"],
+.recovery-panel button,
+#logout-button {
+  align-self: flex-start;
+  padding: 0.7rem 1.1rem;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#logout-button {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.error-banner {
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #8b3a3a;
+  border-radius: 10px;
+  background: #2a1414;
+  color: #ffb4b4;
+}
+
+.recovery-panel {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.recovery-panel code {
+  display: block;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  overflow-wrap: anywhere;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--caret);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}

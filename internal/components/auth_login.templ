@@ -12,16 +12,18 @@ templ LoginForm(errMsg string) {
 		<div id="login-error">
 			@ErrorBanner(errMsg)
 		</div>
-		<form
-			hx-post="/login"
-			hx-target="#login-error"
-			hx-swap="innerHTML"
-			hx-on::after-request="this.reset()"
-		>
-			@FormField("username", "Username", "text", "username")
-			@FormField("password", "Password", "password", "password")
+		<form id="login-form" data-auth-form="login">
+			<div class="form-field">
+				<label for="email">Email</label>
+				<input type="email" id="email" name="email" autocomplete="username" required />
+			</div>
+			<div class="form-field">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" autocomplete="current-password" required />
+			</div>
 			<button type="submit">Log in</button>
 		</form>
 		<p>No account? <a href="/register">Sign up</a></p>
+		<p><a href="/recover">Use a recovery code</a></p>
 	</div>
 }

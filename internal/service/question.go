@@ -4,15 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/dnp314/khayal/internal/entities"
+	"github.com/google/uuid"
 )
 
-var ErrEmptyQuestion = errors.New("question cannot be empty")
+var (
+	ErrEmptyQuestion     = errors.New("question cannot be empty")
+	ErrInvalidCiphertext = errors.New("invalid ciphertext")
+)
 
 type QuestionRepository interface {
-	CreateQuestion(ctx context.Context, userID int, question string) error
+	CreateQuestion(ctx context.Context, userID int, clientID uuid.UUID, ciphertext []byte, encryptionVersion int) error
 	GetQuestion(ctx context.Context, userID, id int) (entities.Question, error)
 	GetAllQuestions(ctx context.Context, userID int) ([]entities.Question, error)
 }
@@ -22,16 +25,17 @@ type QuestionService struct {
 }
 
 func NewQuestionService(repo QuestionRepository) *QuestionService {
-	return &QuestionService{
-		repo: repo,
-	}
+	return &QuestionService{repo: repo}
 }
 
-func (s *QuestionService) CreateQuestion(ctx context.Context, userID int, question string) error {
-	if strings.TrimSpace(question) == "" {
+func (s *QuestionService) CreateQuestion(ctx context.Context, userID int, clientID uuid.UUID, ciphertext []byte, encryptionVersion int) error {
+	if len(ciphertext) == 0 {
 		return ErrEmptyQuestion
 	}
-	if err := s.repo.CreateQuestion(ctx, userID, question); err != nil {
+	if len(ciphertext) < 12+16 || encryptionVersion < 1 {
+		return ErrInvalidCiphertext
+	}
+	if err := s.repo.CreateQuestion(ctx, userID, clientID, ciphertext, encryptionVersion); err != nil {
 		return fmt.Errorf("create question: %w", err)
 	}
 	return nil

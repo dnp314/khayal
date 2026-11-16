@@ -4,18 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/dnp314/khayal/internal/entities"
+	"github.com/google/uuid"
 )
 
 var ErrEmptyKhayal = errors.New("khayal cannot be empty")
 
 type KhayalRepository interface {
-	CreateKhayal(ctx context.Context, questionID int, khayal string, returnAt time.Time) error
-	// GetKhayal(ctx context.Context, id int) (entities.Khayal, error)
-	GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error)
+	CreateKhayal(ctx context.Context, userID, questionID int, clientID uuid.UUID, ciphertext []byte, encryptionVersion int, returnAt time.Time) error
+	GetAllKhayals(ctx context.Context, userID, questionID int) ([]entities.Khayal, error)
 }
 
 type KhayalService struct {
@@ -30,32 +29,23 @@ func NewKhayalService(KhayalRepo KhayalRepository, QuestionRepo QuestionReposito
 	}
 }
 
-func (s *KhayalService) CreateKhayal(ctx context.Context, questionID int, khayal string) error {
-	if strings.TrimSpace(khayal) == "" {
+func (s *KhayalService) CreateKhayal(ctx context.Context, userID, questionID int, clientID uuid.UUID, ciphertext []byte, encryptionVersion int) error {
+	if len(ciphertext) == 0 {
 		return ErrEmptyKhayal
 	}
-	// return time should be random or fixed if decided
-	if err := s.KhayalRepo.CreateKhayal(ctx, questionID, khayal, time.Now().Add(1*time.Minute)); err != nil {
+	if len(ciphertext) < 12+16 || encryptionVersion < 1 {
+		return ErrInvalidCiphertext
+	}
+	if err := s.KhayalRepo.CreateKhayal(ctx, userID, questionID, clientID, ciphertext, encryptionVersion, time.Now().Add(1*time.Minute)); err != nil {
 		return fmt.Errorf("create khayal: %w", err)
 	}
 	return nil
 }
 
-// func (s *KhayalService) GetKhayal(ctx context.Context, id int) (entities.Khayal, error) {
-// 	question, err := s.repo.GetKhayal(ctx, id)
-// 	if err != nil {
-// 		return entities.Khayal{}, err
-// 	}
-// 	return question, nil
-// }
-
-func (s *KhayalService) GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error) {
-
-	khayals, err := s.KhayalRepo.GetAllKhayals(ctx, questionID)
+func (s *KhayalService) GetAllKhayals(ctx context.Context, userID, questionID int) ([]entities.Khayal, error) {
+	khayals, err := s.KhayalRepo.GetAllKhayals(ctx, userID, questionID)
 	if err != nil {
 		return nil, fmt.Errorf("get all khayals for question %d: %w", questionID, err)
 	}
-
 	return khayals, nil
-
 }

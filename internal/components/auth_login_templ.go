@@ -77,19 +77,7 @@ func LoginForm(errMsg string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><form hx-post=\"/login\" hx-target=\"#login-error\" hx-swap=\"innerHTML\" hx-on::after-request=\"this.reset()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = FormField("username", "Username", "text", "username").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = FormField("password", "Password", "password", "password").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<button type=\"submit\">Log in</button></form><p>No account? <a href=\"/register\">Sign up</a></p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><form id=\"login-form\" data-auth-form=\"login\"><div class=\"form-field\"><label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" autocomplete=\"username\" required></div><div class=\"form-field\"><label for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" autocomplete=\"current-password\" required></div><button type=\"submit\">Log in</button></form><p>No account? <a href=\"/register\">Sign up</a></p><p><a href=\"/recover\">Use a recovery code</a></p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,10 +1,12 @@
 package components
 
-import "github.com/dnp314/khayal/internal/entities"
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dnp314/khayal/internal/entities"
+)
 
 templ Khayals(khayals []entities.Khayal) {
-
 	<div id="khayal-list">
 		for _, khayal := range khayals {
 			<div>
@@ -12,35 +14,37 @@ templ Khayals(khayals []entities.Khayal) {
 			</div>
 		}
 	</div>
-	}
+}
 
-templ CreateKhayal(questionID int) {
+templ CreateKhayal(questionID int, userID int) {
 	<form
-	class="khayal-form"
-	hx-post={ fmt.Sprintf("/questions/%d/khayals", questionID) }
-	hx-target="#khayal-list"
-	hx-swap="outerHTML"
-	hx-on::before-request="if (!this.khayal.value.trim()) event.preventDefault()"
-	hx-on::after-request="this.reset(); growTextarea(this.khayal)"
+		class="khayal-form"
+		hx-post={ fmt.Sprintf("/questions/%d/khayals", questionID) }
+		hx-target="#khayal-list"
+		hx-swap="outerHTML"
+		data-encrypt="khayal"
+		data-user-id={ fmt.Sprintf("%d", userID) }
+		data-question-id={ fmt.Sprintf("%d", questionID) }
 	>
 		<textarea
 			id="khayal"
-			name="khayal"
 			rows="1"
 			placeholder="Your Opinions"
-			onkeydown="if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }"
+			data-enter-submit
 		></textarea>
 		<button type="submit">Answer</button>
 	</form>
 }
 
-
 templ Khayal(khayal entities.Khayal) {
 	<article class="khayal-card">
 		<div class="khayal-card__content">
-			<p class="khayal-card__text">
-				{ khayal.Khayal }
-			</p>
+			<p
+				class="khayal-card__text"
+				data-ciphertext={ b64(khayal.KhayalCiphertext) }
+				data-aad={ fmt.Sprintf("khayal:v1:khayal:%d:%d:%s", khayal.UserID, khayal.QuestionID, khayal.ClientID) }
+				data-cipher-field="khayal"
+			>[encrypted]</p>
 
 			<time class="khayal-card__date">
 				{ khayal.CreatedAt.Format("2 Jan 2006, 3:04 PM") }

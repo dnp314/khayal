@@ -2,9 +2,9 @@ package components
 
 import "github.com/dnp314/khayal/internal/entities"
 
-templ HomePage(questions []entities.Question) {
-		@Layout("Khayal") {
-			@CreateQuestion("What is up ?")
-			@Questions(questions)
-		}
+templ HomePage(userID int, questions []entities.Question) {
+	@LayoutWithUser("Khayal", userID) {
+		@CreateQuestion(userID, "What is up ?")
+		@Questions(questions)
+	}
 }

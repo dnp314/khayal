@@ -12,17 +12,28 @@ templ RegisterForm(errMsg string) {
 		<div id="register-error">
 			@ErrorBanner(errMsg)
 		</div>
-		<form
-			hx-post="/register"
-			hx-target="#register-error"
-			hx-swap="innerHTML"
-			hx-on::after-request="this.reset()"
-		>
-			@FormField("username", "Username", "text", "username")
-			@FormField("password", "Password", "password", "password")
-			@FormField("email", "email", "email", "email")
+		<form id="register-form" data-auth-form="register">
+			<div class="form-field">
+				<label for="username">Username</label>
+				<input type="text" id="username" name="username" autocomplete="username" required minlength="3" maxlength="32" />
+			</div>
+			<div class="form-field">
+				<label for="email">Email</label>
+				<input type="email" id="email" name="email" autocomplete="email" required />
+			</div>
+			<div class="form-field">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" autocomplete="new-password" required minlength="12" />
+			</div>
+			<p class="muted">Use at least 12 characters. Your password never leaves this browser.</p>
 			<button type="submit">Sign up</button>
 		</form>
+		<div id="recovery-panel" class="recovery-panel" hidden>
+			<h2>Save your recovery code</h2>
+			<p>This code can unlock your data if you forget your password. It is shown only once.</p>
+			<code id="recovery-code"></code>
+			<button type="button" id="recovery-continue">I saved it — continue</button>
+		</div>
 		<p>Already have an account? <a href="/login">Log in</a></p>
 	</div>
 }

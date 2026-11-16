@@ -1,38 +1,31 @@
 package components
 
+import "fmt"
+
 templ Layout(title string) {
+	@pageLayout(title, 0) {
+		{ children... }
+	}
+}
+
+templ LayoutWithUser(title string, userID int) {
+	@pageLayout(title, userID) {
+		{ children... }
+	}
+}
+
+templ pageLayout(title string, userID int) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<title>{ title }</title>
-
 			<script src="/static/js/htmx.min.js"></script>
-			<script>
-			  function growTextarea(el) {
-			    const cs = getComputedStyle(el);
-			    const min = parseFloat(cs.minHeight) || 0;
-			    const max = parseFloat(cs.maxHeight) || Infinity;
-			    const start = el.offsetHeight;
-			    el.style.height = 'auto';
-			    const end = Math.max(min, Math.min(el.scrollHeight + 2, max));
-			    el.style.height = end + 'px';
-			    if (start !== end) {
-			      el.animate(
-			        [{ height: start + 'px' }, { height: end + 'px' }],
-			        { duration: 120, easing: 'ease-out' }
-			      );
-			    }
-			  }
-			  document.addEventListener('input', (e) => {
-			    if (e.target.matches('form textarea')) growTextarea(e.target);
-			  });
-			</script>
+			<script type="module" src="/static/js/app.js"></script>
 			<link rel="stylesheet" href="/static/css/style.css"/>
 		</head>
-
-		<body>
+		<body data-user-id={ fmt.Sprintf("%d", userID) }>
 			{ children... }
 		</body>
 	</html>

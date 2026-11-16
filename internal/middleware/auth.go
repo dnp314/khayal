@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/dnp314/khayal/internal/entities"
 	"github.com/gin-gonic/gin"
@@ -64,10 +65,14 @@ func OptionalAuth(auth SessionService) gin.HandlerFunc {
 
 func SetSessionCookie(c *gin.Context, token string, maxAge int) {
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(SessionCookieName, token, maxAge, "/", "", false, true)
+	c.SetCookie(SessionCookieName, token, maxAge, "/", "", secureCookies(), true)
 }
 
 func ClearSessionCookie(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(SessionCookieName, "", -1, "/", "", false, true)
+	c.SetCookie(SessionCookieName, "", -1, "/", "", secureCookies(), true)
+}
+
+func secureCookies() bool {
+	return os.Getenv("KHAYAL_INSECURE_COOKIES") != "1"
 }

@@ -1,10 +1,23 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Khayal struct {
-	ID         int
-	QuestionID int
-	Khayal     string
-	CreatedAt  time.Time
+	ID                int
+	UserID            int
+	QuestionID        int
+	ClientID          uuid.UUID
+	KhayalCiphertext  []byte
+	EncryptionVersion int
+	CreatedAt         time.Time
+}
+
+type LegacyKhayal struct {
+	ID         int    `json:"id"`
+	QuestionID int    `json:"question_id"`
+	Khayal     string `json:"khayal"`
 }

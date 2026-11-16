@@ -1,0 +1,27 @@
+package components
+
+import "github.com/dnp314/khayal/internal/entities"
+
+templ AccountPage(user entities.User) {
+	@LayoutWithUser("Account", user.ID) {
+		<div class="auth-container">
+			<h1>Account</h1>
+			<p>Signed in as <strong>{ user.Email }</strong></p>
+			<div id="account-status"></div>
+			<form id="change-password-form" data-auth-form="change-password" data-email={ user.Email }>
+				<h2>Change password</h2>
+				<div class="form-field">
+					<label for="current-password">Current password</label>
+					<input type="password" id="current-password" name="current_password" autocomplete="current-password" required />
+				</div>
+				<div class="form-field">
+					<label for="new-password">New password</label>
+					<input type="password" id="new-password" name="new_password" autocomplete="new-password" required minlength="12" />
+				</div>
+				<button type="submit">Change password</button>
+			</form>
+			<button type="button" id="logout-button">Log out</button>
+			<p><a href="/">Back to questions</a></p>
+		</div>
+	}
+}

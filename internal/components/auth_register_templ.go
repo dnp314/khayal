@@ -77,23 +77,7 @@ func RegisterForm(errMsg string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><form hx-post=\"/register\" hx-target=\"#register-error\" hx-swap=\"innerHTML\" hx-on::after-request=\"this.reset()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = FormField("username", "Username", "text", "username").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = FormField("password", "Password", "password", "password").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = FormField("email", "email", "email", "email").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<button type=\"submit\">Sign up</button></form><p>Already have an account? <a href=\"/login\">Log in</a></p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><form id=\"register-form\" data-auth-form=\"register\"><div class=\"form-field\"><label for=\"username\">Username</label> <input type=\"text\" id=\"username\" name=\"username\" autocomplete=\"username\" required minlength=\"3\" maxlength=\"32\"></div><div class=\"form-field\"><label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" autocomplete=\"email\" required></div><div class=\"form-field\"><label for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" autocomplete=\"new-password\" required minlength=\"12\"></div><p class=\"muted\">Use at least 12 characters. Your password never leaves this browser.</p><button type=\"submit\">Sign up</button></form><div id=\"recovery-panel\" class=\"recovery-panel\" hidden><h2>Save your recovery code</h2><p>This code can unlock your data if you forget your password. It is shown only once.</p><code id=\"recovery-code\"></code> <button type=\"button\" id=\"recovery-continue\">I saved it — continue</button></div><p>Already have an account? <a href=\"/login\">Log in</a></p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

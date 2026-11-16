@@ -1,80 +1,68 @@
 package components
 
-import "github.com/dnp314/khayal/internal/entities"
-import "fmt"
+import (
+	"fmt"
 
+	"github.com/dnp314/khayal/internal/entities"
+)
 
-
-templ CreateQuestion(placeholder string) {
+templ CreateQuestion(userID int, placeholder string) {
 	<form
 		hx-post="/questions"
 		hx-target="#question-list"
 		hx-swap="outerHTML"
-		hx-on::before-request="if (!this.question.value.trim()) event.preventDefault()"
-		hx-on::after-request="this.reset(); growTextarea(this.question)"
+		data-encrypt="question"
+		data-user-id={ fmt.Sprintf("%d", userID) }
 	>
 		<textarea
 			id="question"
-			name="question"
 			rows="1"
 			placeholder={ placeholder }
-			onkeydown="if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }"
+			data-enter-submit
 		></textarea>
 		<button type="submit">Ask</button>
 	</form>
 }
 
+templ QuestionTitle(question entities.Question) {
+	<h1
+		data-ciphertext={ b64(question.QuestionCiphertext) }
+		data-aad={ fmt.Sprintf("khayal:v1:question:%d:%s", question.UserID, question.ClientID) }
+		data-cipher-field="question"
+	>[encrypted]</h1>
+}
 
-templ Question(question entities.Question, khayals []entities.Khayal){
-
-	<h1>
-	{question.Question}
-	</h1>
-
-	@CreateKhayal(question.ID)
+templ Question(question entities.Question, khayals []entities.Khayal) {
+	@QuestionTitle(question)
+	@CreateKhayal(question.ID, question.UserID)
 	@Khayals(khayals)
+}
 
-	}
-
-
-templ QuestionPage(
-	question entities.Question,
-	khayals []entities.Khayal,
-) {
-		@Layout(question.Question) {
-		<h2>{ question.Question }</h2>
-
-		@CreateKhayal(question.ID)
+templ QuestionPage(question entities.Question, khayals []entities.Khayal) {
+	@LayoutWithUser("Khayal", question.UserID) {
+		@QuestionTitle(question)
+		@CreateKhayal(question.ID, question.UserID)
 		@Khayals(khayals)
 	}
 }
 
 templ Questions(questions []entities.Question) {
-
-
-  <script>
-	window.addEventListener("pageshow", (event) => {
-    if (event.persisted) {
-        htmx.ajax("GET", "/questions", {
-            target: "#question-list",
-            select: "#question-list"
-        });
-    }
-	});
-	</script>
-
-	    <div
-        id="question-list"
-        hx-get="/questions"
-        hx-trigger="every 10s"
-        hx-target="#question-list"
-				hx-swap-oob="true"
-    >
+	<div
+		id="question-list"
+		hx-get="/questions"
+		hx-trigger="every 10s"
+		hx-target="#question-list"
+		hx-swap-oob="true"
+	>
 		for _, question := range questions {
-			<div >
-				 <a href={ fmt.Sprintf("/questions/%d", question.ID) }>{ question.Question }</a>
+			<div>
+				<a
+					href={ fmt.Sprintf("/questions/%d", question.ID) }
+					data-ciphertext={ b64(question.QuestionCiphertext) }
+					data-aad={ fmt.Sprintf("khayal:v1:question:%d:%s", question.UserID, question.ClientID) }
+					data-cipher-field="question"
+				>[encrypted]</a>
 			</div>
 		}
 	</div>
-	}
-
+}

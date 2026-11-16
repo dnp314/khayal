@@ -25,8 +25,11 @@ func main() {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 
 	ctx := context.Background()
-	urlExample := "postgres://khayal:khayal@localhost:5432/khayal"
-	conn, err := pgx.Connect(ctx, urlExample)
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		databaseURL = "postgres://khayal:khayal@localhost:5432/khayal"
+	}
+	conn, err := pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		slog.Error("unable to connect to database", "error", err)
 		os.Exit(1)
@@ -37,8 +40,6 @@ func main() {
 		}
 	}()
 
-	// go utils.StartReturnTimeChecker(conn)
-
 	questionRepo := repository.NewQuestionRepostiory(conn)
 	khayalRepo := repository.NewKhayalRepostiory(conn)
 	authRepo := repository.NewAuthRepostiory(conn)
@@ -46,10 +47,11 @@ func main() {
 	questionService := service.NewQuestionService(questionRepo)
 	khayalService := service.NewKhayalService(khayalRepo, questionRepo)
 	authService := service.NewAuthService(authRepo)
+	migrationService := service.NewMigrationService(questionRepo, khayalRepo)
 
 	khayalController := controller.NewKhayalController(khayalService, questionService)
 	questionController := controller.NewQuestionController(questionService, khayalService)
-	authController := controller.NewAuthController(authService)
+	authController := controller.NewAuthController(authService, migrationService)
 
 	controllers := Controllers{
 		Questions: questionController,

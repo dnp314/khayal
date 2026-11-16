@@ -1,0 +1,29 @@
+package components
+
+templ RecoverPage(errMsg string) {
+	@Layout("Recover account") {
+		<div class="auth-container">
+			<h1>Recover account</h1>
+			<div id="recover-error">
+				@ErrorBanner(errMsg)
+			</div>
+			<form id="recover-form" data-auth-form="recover">
+				<div class="form-field">
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" autocomplete="username" required />
+				</div>
+				<div class="form-field">
+					<label for="recovery-code-input">Recovery code</label>
+					<input type="text" id="recovery-code-input" name="recovery_code" autocomplete="off" required />
+				</div>
+				<div class="form-field">
+					<label for="new-password">New password</label>
+					<input type="password" id="new-password" name="new_password" autocomplete="new-password" required minlength="12" />
+				</div>
+				<button type="submit">Recover</button>
+			</form>
+			<p>Without your password or recovery code, your data cannot be recovered.</p>
+			<p><a href="/login">Back to log in</a></p>
+		</div>
+	}
+}
