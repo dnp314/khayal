@@ -80,14 +80,31 @@ templ CreateKhayal(questionID int) {
 
 templ Khayal(khayal entities.Khayal) {
 	<article class="khayal-card">
-		<div class="khayal-card__content">
-			<p class="khayal-card__text">
-				{ khayal.Khayal }
-			</p>
+		<a
+			class="khayal-card__link"
+			href={ fmt.Sprintf("/questions/%d/khayals/%d", khayal.QuestionID, khayal.ID) }
+		>
+			<span
+				class="khayal-card__preview"
+				data-khayal-preview="true"
+				data-full-text={ khayal.Khayal }
+			>{ truncateKhayal(khayal.Khayal) }</span>
+		</a>
+	</article>
+}
 
-			<time class="khayal-card__date">
+templ KhayalPage(khayal entities.Khayal) {
+	@Layout("Khayal") {
+		<a class="back-link" href={ fmt.Sprintf("/questions/%d", khayal.QuestionID) }>
+			← Back to question
+		</a>
+
+		<article class="khayal-detail">
+			<p class="khayal-detail__text">{ khayal.Khayal }</p>
+
+			<time class="khayal-detail__date">
 				{ khayal.CreatedAt.Format("2 Jan 2006, 3:04 PM") }
 			</time>
-		</div>
-	</article>
+		</article>
+	}
 }

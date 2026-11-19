@@ -210,6 +210,49 @@ form button[type="submit"]:active {
   color: var(--muted);
 }
 
+/* Khayal previews stay on one line with room left on the right */
+#khayal-list > div a {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.khayal-card__preview {
+  display: block;
+  width: 100%;
+  max-width: 80ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#khayal-list > div a:hover .khayal-card__preview {
+  color: var(--accent);
+}
+
+/* Khayal detail page */
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+.khayal-detail__text {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.khayal-detail__date {
+  display: block;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 /* Khayal form: bigger, more prominent input */
 form.khayal-form {
   flex-direction: column;     /* button goes below the box */

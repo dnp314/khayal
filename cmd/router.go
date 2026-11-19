@@ -29,13 +29,13 @@ func createRouter(c Controllers, sessionService middleware.SessionService) *gin.
 	authenticated := router.Group("/")
 	authenticated.Use(middleware.Auth(sessionService))
 	{
-		authenticated.GET("/questions/:id", c.Questions.GetQuestion)
+		authenticated.GET("/questions/:questionID", c.Questions.GetQuestion)
 		authenticated.GET("/questions", c.Questions.GetAllQuestions)
 		authenticated.POST("/questions", c.Questions.CreateQuestion)
 		authenticated.POST("/questions/:questionID/khayals", c.Khayals.CreateKhayal)
+		authenticated.GET("/questions/:questionID/khayals/:khayalID", c.Khayals.GetKhayal)
 		authenticated.POST("/logout", c.Auth.Logout)
 		// patch or put for updating question ?
-		// authenticated.GET("/questions/:questionID/khayals/:khayalID", c.Khayals.GetKhayal)
 	}
 
 	return router

@@ -15,7 +15,7 @@ import (
 )
 
 type KhayalService interface {
-	// 	GetKhayal(ctx context.Context, id int) (entities.Khayal, error)
+	GetKhayal(ctx context.Context, userID, questionID, id int) (entities.Khayal, error)
 	GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error)
 	CreateKhayal(ctx context.Context, questionID int, khayal string, schedule service.ReturnSchedule) error
 }
@@ -99,25 +99,46 @@ func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 	}
 }
 
-// func (c *KhayalController) GetKhayal(ctx *gin.Context) {
-// 	id, err := strconv.Atoi(ctx.Param("id"))
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"error": "invalid id",
-// 		})
-// 		return
-// 	}
-// 	khayal, err := c.service.GetKhayal(ctx.Request.Context(), id)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
+func (c *KhayalController) GetKhayal(ctx *gin.Context) {
+	userID, ok := requireUserID(ctx)
+	if !ok {
+		return
+	}
 
-// 	fmt.Println(khayal)
-// 	_ = components.Khayal(khayal).Render(
-// 		ctx,
-// 		ctx.Writer,
-// 	)
-// }
+	questionID, err := strconv.Atoi(ctx.Param("questionID"))
+	if err != nil {
+		slog.Warn("invalid question id", "id", ctx.Param("questionID"), "error", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid question id",
+		})
+		return
+	}
+
+	khayalID, err := strconv.Atoi(ctx.Param("khayalID"))
+	if err != nil {
+		slog.Warn("invalid khayal id", "id", ctx.Param("khayalID"), "error", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid khayal id",
+		})
+		return
+	}
+
+	khayal, err := c.khayalService.GetKhayal(ctx, userID, questionID, khayalID)
+	if err != nil {
+		if errors.Is(err, service.ErrKhayalNotFound) {
+			ctx.String(http.StatusNotFound, "Khayal not found")
+			return
+		}
+
+		slog.Error("get khayal", "khayal_id", khayalID, "question_id", questionID, "user_id", userID, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load khayal")
+		return
+	}
+
+	if err := components.KhayalPage(khayal).Render(ctx.Request.Context(), ctx.Writer); err != nil {
+		slog.Error("render khayal page", "khayal_id", khayalID, "question_id", questionID, "user_id", userID, "error", err)
+	}
+}
 
 // func (c *KhayalController) GetAllKhayals(ctx *gin.Context) {
 

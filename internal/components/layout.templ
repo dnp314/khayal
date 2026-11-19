@@ -51,8 +51,46 @@ templ Layout(title string) {
 			    }
 			  });
 
+			  function fitKhayalPreviews() {
+			    document.querySelectorAll('[data-khayal-preview]').forEach((el) => {
+			      const full = (el.dataset.fullText || '').replace(/\s+/g, ' ').trim();
+			      el.textContent = full;
+
+			      const available = el.clientWidth;
+			      if (!full || !available || el.scrollWidth <= available) return;
+
+			      const words = full.split(' ');
+			      const suffix = '..';
+			      let low = 0;
+			      let high = words.length;
+			      let best = 0;
+
+			      while (low <= high) {
+			        const mid = Math.floor((low + high) / 2);
+			        el.textContent = words.slice(0, mid).join(' ') + suffix;
+			        if (el.scrollWidth <= available) {
+			          best = mid;
+			          low = mid + 1;
+			        } else {
+			          high = mid - 1;
+			        }
+			      }
+
+			      const preview = words.slice(0, best).join(' ');
+			      el.textContent = preview ? preview + suffix : suffix;
+			    });
+			  }
+
+			  let khayalFitFrame = 0;
+			  window.addEventListener('resize', () => {
+			    cancelAnimationFrame(khayalFitFrame);
+			    khayalFitFrame = requestAnimationFrame(fitKhayalPreviews);
+			  });
+			  document.addEventListener('htmx:afterSwap', fitKhayalPreviews);
+
 			  document.addEventListener('DOMContentLoaded', () => {
 			    document.querySelectorAll('form.khayal-form').forEach(syncKhayalReturn);
+			    fitKhayalPreviews();
 			  });
 			</script>
 			<link rel="stylesheet" href="/static/css/style.css"/>

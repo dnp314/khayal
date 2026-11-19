@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/dnp314/khayal/internal/entities"
+	"github.com/jackc/pgx/v5"
 )
 
 var (
 	ErrEmptyKhayal       = errors.New("khayal cannot be empty")
 	ErrInvalidReturnTime = errors.New("invalid return time")
+	ErrKhayalNotFound    = errors.New("khayal not found")
 )
 
 type ReturnMode string
@@ -85,7 +87,7 @@ func resolveDate(value string, now time.Time) (time.Time, error) {
 
 type KhayalRepository interface {
 	CreateKhayal(ctx context.Context, questionID int, khayal string, returnAt time.Time) error
-	// GetKhayal(ctx context.Context, id int) (entities.Khayal, error)
+	GetKhayal(ctx context.Context, userID, questionID, id int) (entities.Khayal, error)
 	GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error)
 }
 
@@ -117,13 +119,17 @@ func (s *KhayalService) CreateKhayal(ctx context.Context, questionID int, khayal
 	return nil
 }
 
-// func (s *KhayalService) GetKhayal(ctx context.Context, id int) (entities.Khayal, error) {
-// 	question, err := s.repo.GetKhayal(ctx, id)
-// 	if err != nil {
-// 		return entities.Khayal{}, err
-// 	}
-// 	return question, nil
-// }
+func (s *KhayalService) GetKhayal(ctx context.Context, userID, questionID, id int) (entities.Khayal, error) {
+	khayal, err := s.KhayalRepo.GetKhayal(ctx, userID, questionID, id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entities.Khayal{}, ErrKhayalNotFound
+		}
+		return entities.Khayal{}, fmt.Errorf("get khayal: %w", err)
+	}
+
+	return khayal, nil
+}
 
 func (s *KhayalService) GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error) {
 

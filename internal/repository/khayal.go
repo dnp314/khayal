@@ -41,27 +41,32 @@ func (r *KhayalRepository) CreateKhayal(ctx context.Context, questionID int, kha
 	return nil
 }
 
-// func (r *KhayalRepository) GetKhayal(ctx context.Context, id int) (entities.Khayal, error) {
-// 	var khayal entities.Khayal
-// 	err := r.db.QueryRow(
-// 		ctx,
-// 		"SELECT khayal,answered FROM khayals where id=($1)",
-// 		id,
-// 	).Scan(
-// 		&khayal.Khayal,
-// 		&khayal.Answered,
-// 	)
-// 	if err != nil {
-// 		log.Println(err)
-// 	}
+func (r *KhayalRepository) GetKhayal(ctx context.Context, userID, questionID, id int) (entities.Khayal, error) {
+	var khayal entities.Khayal
+	err := r.db.QueryRow(
+		ctx,
+		`SELECT k.id, k.question_id, k.khayal, k.created_at
+		 FROM khayals k
+		 JOIN questions q ON q.id = k.question_id
+		 WHERE k.id = $1 AND k.question_id = $2 AND q.user_id = $3`,
+		id, questionID, userID,
+	).Scan(
+		&khayal.ID,
+		&khayal.QuestionID,
+		&khayal.Khayal,
+		&khayal.CreatedAt,
+	)
+	if err != nil {
+		return entities.Khayal{}, fmt.Errorf("get khayal %d for question %d and user %d: %w", id, questionID, userID, err)
+	}
 
-// 	return khayal, err
-// }
+	return khayal, nil
+}
 
 func (r *KhayalRepository) GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error) {
 
 	rows, err := r.db.Query(ctx,
-		`SELECT k.id, k.khayal, k.created_at
+		`SELECT k.id, k.question_id, k.khayal, k.created_at
 			FROM khayals k
 			JOIN questions q ON q.id = k.question_id
 			WHERE k.question_id = $1
@@ -86,6 +91,7 @@ func (r *KhayalRepository) GetAllKhayals(ctx context.Context, questionID int) ([
 
 		err := rows.Scan(
 			&q.ID,
+			&q.QuestionID,
 			&q.Khayal,
 			&q.CreatedAt)
 		if err != nil {

@@ -107,9 +107,9 @@ func (c *QuestionController) GetQuestion(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("questionID"))
 	if err != nil {
-		slog.Warn("invalid question id", "id", ctx.Param("id"), "error", err)
+		slog.Warn("invalid question id", "id", ctx.Param("questionID"), "error", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid id",
 		})
