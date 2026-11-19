@@ -9,7 +9,7 @@ should i use AI ? reasonably YES
 
 # issues
 - more than one khayal can be written at once
-- plain text contents stored in db: solution created on a separate branch
+- plain text contents stored in db: solution created on a separate branch: first self hostable release
 - timezone: store in UTC and while displaying localize
 
 # features
@@ -19,14 +19,12 @@ should i use AI ? reasonably YES
 - slug instead of id
 
 # dev
+- focus on infra: reliable: shuold perform as expected, scalable, maintainable: should be easy to add new features
+- observability
 - logging/error handling: handled but have to take a look
 - migrations
-- dockerize
-- testing/profiling
+- dockerize: having a docker container for db with migrations would have helped
+- AGENTS.md
+- testing/profiling: table driven tests ?
 
-
-
-- applying migrations
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/001_init.sql
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/002_sessions.sql
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/003_questions_user_id.sql
+caring is important !

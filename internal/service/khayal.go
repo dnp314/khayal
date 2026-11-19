@@ -72,17 +72,11 @@ func resolveGap(gap string, now time.Time) (time.Time, error) {
 }
 
 func resolveDate(value string, now time.Time) (time.Time, error) {
-	for _, layout := range []string{"2006-01-02T15:04", "2006-01-02T15:04:05", "2006-01-02"} {
-		parsed, err := time.ParseInLocation(layout, value, time.Local)
-		if err != nil {
-			continue
-		}
-		if !parsed.After(now) {
-			return time.Time{}, ErrInvalidReturnTime
-		}
-		return parsed.UTC(), nil
+	parsed, err := time.ParseInLocation("2006-01-02", value, time.Local)
+	if err != nil || !parsed.After(now) {
+		return time.Time{}, ErrInvalidReturnTime
 	}
-	return time.Time{}, ErrInvalidReturnTime
+	return parsed.UTC(), nil
 }
 
 type KhayalRepository interface {

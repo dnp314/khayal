@@ -139,12 +139,3 @@ func (c *KhayalController) GetKhayal(ctx *gin.Context) {
 		slog.Error("render khayal page", "khayal_id", khayalID, "question_id", questionID, "user_id", userID, "error", err)
 	}
 }
-
-// func (c *KhayalController) GetAllKhayals(ctx *gin.Context) {
-
-// 	khayals, _ := c.service.GetAllKhayals(ctx)
-// 	_ = components.Khayals(khayals).Render(
-// 		ctx,
-// 		ctx.Writer,
-// 	)
-// }

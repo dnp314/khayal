@@ -62,11 +62,11 @@ templ CreateKhayal(questionID int) {
 					</select>
 				</label>
 				<label class="khayal-schedule__field" data-return-field="date" data-return-required="true" hidden>
-					<span>Date &amp; time</span>
+					<span>Date</span>
 					<input
-						type="datetime-local"
+						type="date"
 						name="return_date"
-						min={ time.Now().Format("2006-01-02T15:04") }
+						min={ time.Now().AddDate(0, 0, 1).Format("2006-01-02") }
 						disabled
 					/>
 				</label>
