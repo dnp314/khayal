@@ -9,7 +9,7 @@ should i use AI ? reasonably YES
 
 # issues
 - more than one khayal can be written at once
-- plain text contents stored in db
+- plain text contents stored in db: solution created on a separate branch
 - timezone: store in UTC and while displaying localize
 
 # features

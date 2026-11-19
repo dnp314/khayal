@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/dnp314/khayal/internal/entities"
 import "fmt"
+import "time"
 
 func Khayals(khayals []entities.Khayal) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -79,13 +80,26 @@ func CreateKhayal(questionID int) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templruntime.NewAttributeExpression(fmt.Sprintf("/questions/%d/khayals", questionID)).Resolve(ctx)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 20, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 21, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#khayal-list\" hx-swap=\"outerHTML\" hx-on::before-request=\"if (!this.khayal.value.trim()) event.preventDefault()\" hx-on::after-request=\"this.reset(); growTextarea(this.khayal)\"><textarea id=\"khayal\" name=\"khayal\" rows=\"1\" placeholder=\"Your Opinions\" onkeydown=\"if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }\"></textarea> <button type=\"submit\">Answer</button></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#khayal-list\" hx-swap=\"outerHTML\" hx-on::before-request=\"if (!this.khayal.value.trim()) event.preventDefault()\" hx-on::after-request=\"if (event.detail.successful) { this.remove(); } else { this.reset(); growTextarea(this.khayal); syncKhayalReturn(this); }\"><textarea id=\"khayal\" name=\"khayal\" rows=\"1\" placeholder=\"Your Opinions\" onkeydown=\"if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); this.form.requestSubmit(); }\"></textarea><fieldset class=\"khayal-schedule\"><legend class=\"khayal-schedule__legend\">Bring this back</legend><div class=\"khayal-schedule__modes\"><label class=\"khayal-schedule__option\"><input type=\"radio\" name=\"return_mode\" value=\"random\" checked> <span>Random time</span></label> <label class=\"khayal-schedule__option\"><input type=\"radio\" name=\"return_mode\" value=\"gap\"> <span>After a gap</span></label> <label class=\"khayal-schedule__option\"><input type=\"radio\" name=\"return_mode\" value=\"date\"> <span>On a date</span></label></div><div class=\"khayal-schedule__details\"><label class=\"khayal-schedule__field\" data-return-field=\"gap\" hidden><span>Gap</span> <select name=\"return_gap\" disabled><option value=\"1w\">1 week</option> <option value=\"1m\">1 month</option> <option value=\"2m\" selected>2 months</option> <option value=\"6m\">6 months</option> <option value=\"1y\">1 year</option></select></label> <label class=\"khayal-schedule__field\" data-return-field=\"date\" data-return-required=\"true\" hidden><span>Date &amp; time</span> <input type=\"datetime-local\" name=\"return_date\" min=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.NewAttributeExpression(time.Now().Format("2006-01-02T15:04")).Resolve(ctx)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 69, Col: 49}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" disabled></label></div></fieldset><button type=\"submit\">Answer</button></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -110,33 +124,33 @@ func Khayal(khayal entities.Khayal) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<article class=\"khayal-card\"><div class=\"khayal-card__content\"><p class=\"khayal-card__text\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(khayal.Khayal)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 42, Col: 19}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</p><time class=\"khayal-card__date\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<article class=\"khayal-card\"><div class=\"khayal-card__content\"><p class=\"khayal-card__text\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(khayal.CreatedAt.Format("2 Jan 2006, 3:04 PM"))
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(khayal.Khayal)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 46, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 85, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</time></div></article>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p><time class=\"khayal-card__date\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(khayal.CreatedAt.Format("2 Jan 2006, 3:04 PM"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/khayal.templ`, Line: 89, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</time></div></article>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -230,3 +230,113 @@ form.khayal-form textarea {
 form.khayal-form button[type="submit"] {
   align-self: flex-end;       /* button sits bottom-right */
 }
+
+/* Khayal return-time picker */
+form.khayal-form .khayal-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 18px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.khayal-schedule__legend {
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.khayal-schedule__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.khayal-schedule__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.khayal-schedule__option:hover {
+  border-color: #4a4a4a;
+  color: var(--fg);
+}
+
+.khayal-schedule__option:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(152, 195, 121, 0.08);
+  color: var(--accent);
+}
+
+.khayal-schedule__option input {
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.khayal-schedule__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.khayal-schedule__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.khayal-schedule__field[hidden] {
+  display: none;
+}
+
+.khayal-schedule__field select,
+.khayal-schedule__field input {
+  min-width: 220px;
+  padding: 10px 14px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color-scheme: dark;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.khayal-schedule__field select:focus,
+.khayal-schedule__field input:focus {
+  border-color: #4a4a4a;
+  box-shadow: 0 0 0 3px rgba(249, 241, 165, 0.08);
+}
+
+@media (max-width: 600px) {
+  .khayal-schedule__field,
+  .khayal-schedule__field select,
+  .khayal-schedule__field input {
+    width: 100%;
+    min-width: 0;
+  }
+}

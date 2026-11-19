@@ -28,6 +28,32 @@ templ Layout(title string) {
 			  document.addEventListener('input', (e) => {
 			    if (e.target.matches('form textarea')) growTextarea(e.target);
 			  });
+
+			  function syncKhayalReturn(form) {
+			    if (!form) return;
+			    const selected = form.querySelector('input[name="return_mode"]:checked');
+			    const mode = selected ? selected.value : 'random';
+			    form.querySelectorAll('[data-return-field]').forEach((field) => {
+			      const active = field.dataset.returnField === mode;
+			      field.hidden = !active;
+			      field.querySelectorAll('select, input').forEach((control) => {
+			        control.disabled = !active;
+			        if (field.dataset.returnRequired === 'true') {
+			          control.required = active;
+			        }
+			      });
+			    });
+			  }
+
+			  document.addEventListener('change', (e) => {
+			    if (e.target.matches('form.khayal-form input[name="return_mode"]')) {
+			      syncKhayalReturn(e.target.form);
+			    }
+			  });
+
+			  document.addEventListener('DOMContentLoaded', () => {
+			    document.querySelectorAll('form.khayal-form').forEach(syncKhayalReturn);
+			  });
 			</script>
 			<link rel="stylesheet" href="/static/css/style.css"/>
 		</head>

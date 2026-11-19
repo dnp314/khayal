@@ -24,24 +24,18 @@ func NewKhayalRepostiory(db *pgx.Conn) *KhayalRepository {
 func (r *KhayalRepository) CreateKhayal(ctx context.Context, questionID int, khayal string, returnAt time.Time) error {
 	_, err := r.db.Exec(
 		ctx,
-		"INSERT INTO khayals (khayal,question_id) VALUES ($1, $2)",
-		khayal, questionID,
+		`WITH inserted_khayal AS (
+			INSERT INTO khayals (khayal, question_id)
+			VALUES ($2, $1)
+			RETURNING id
+		)
+		UPDATE questions
+		SET answered = true, return_at = $3
+		WHERE id = $1`,
+		questionID, khayal, returnAt,
 	)
 	if err != nil {
-		return fmt.Errorf("insert khayal for question %d: %w", questionID, err)
-	}
-
-	_, err = r.db.Exec(
-		ctx,
-		`update questions q
-		 set answered = true, return_at=($2)
-		 where q.id=($1)
-			
-		`,
-		questionID, returnAt,
-	)
-	if err != nil {
-		return fmt.Errorf("mark question %d answered: %w", questionID, err)
+		return fmt.Errorf("insert khayal and update question %d return time: %w", questionID, err)
 	}
 
 	return nil

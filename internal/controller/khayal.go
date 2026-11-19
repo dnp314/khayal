@@ -17,7 +17,7 @@ import (
 type KhayalService interface {
 	// 	GetKhayal(ctx context.Context, id int) (entities.Khayal, error)
 	GetAllKhayals(ctx context.Context, questionID int) ([]entities.Khayal, error)
-	CreateKhayal(ctx context.Context, questionID int, khayal string) error
+	CreateKhayal(ctx context.Context, questionID int, khayal string, schedule service.ReturnSchedule) error
 }
 
 type KhayalController struct {
@@ -43,11 +43,22 @@ func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 		return
 	}
 
-	err = c.khayalService.CreateKhayal(ctx, questionID, khayal)
+	schedule := service.ReturnSchedule{
+		Mode: service.ReturnMode(ctx.PostForm("return_mode")),
+		Gap:  ctx.PostForm("return_gap"),
+		Date: ctx.PostForm("return_date"),
+	}
+
+	err = c.khayalService.CreateKhayal(ctx, questionID, khayal, schedule)
 	if err != nil {
 		if errors.Is(err, service.ErrEmptyKhayal) {
 			slog.Warn("reject empty khayal", "question_id", questionID)
 			ctx.String(http.StatusBadRequest, "Khayal can't be empty")
+			return
+		}
+		if errors.Is(err, service.ErrInvalidReturnTime) {
+			slog.Warn("reject invalid return time", "question_id", questionID, "mode", schedule.Mode, "gap", schedule.Gap, "date", schedule.Date)
+			ctx.String(http.StatusBadRequest, "Choose a valid return time in the future")
 			return
 		}
 
