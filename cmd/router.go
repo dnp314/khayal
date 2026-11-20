@@ -20,14 +20,16 @@ func createRouter(c Controllers, sessionService middleware.SessionService) *gin.
 
 	router.Static("/static", "./static")
 
+	router.Use(middleware.LoadSession(sessionService))
+
 	router.GET("/login", controller.ShowLogin)
 	router.POST("/login", c.Auth.Login)
 	router.GET("/register", controller.ShowRegister)
 	router.POST("/register", c.Auth.PostRegister)
-	router.GET("/", middleware.OptionalAuth(sessionService), c.Questions.Home)
+	router.GET("/", c.Questions.Home)
 
 	authenticated := router.Group("/")
-	authenticated.Use(middleware.Auth(sessionService))
+	authenticated.Use(middleware.RequireAuth())
 	{
 		authenticated.GET("/questions/:questionID", c.Questions.GetQuestion)
 		authenticated.GET("/questions", c.Questions.GetAllQuestions)

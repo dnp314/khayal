@@ -18,21 +18,22 @@ type SessionService interface {
 	ValidateSession(ctx context.Context, token string) (entities.User, error)
 }
 
-func Auth(auth SessionService) gin.HandlerFunc {
+// LoadSession attaches the current user to the request when a valid session
+// cookie is present. It never blocks the request, so public pages can render
+// either the signed-in or signed-out view.
+func LoadSession(sessions SessionService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie(SessionCookieName)
 		if err != nil {
-			c.Redirect(http.StatusSeeOther, "/login")
-			c.Abort()
+			c.Next()
 			return
 		}
 
-		user, err := auth.ValidateSession(c.Request.Context(), token)
+		user, err := sessions.ValidateSession(c.Request.Context(), token)
 		if err != nil {
 			slog.Warn("invalid session", "error", err)
 			ClearSessionCookie(c)
-			c.Redirect(http.StatusSeeOther, "/login")
-			c.Abort()
+			c.Next()
 			return
 		}
 
@@ -41,23 +42,15 @@ func Auth(auth SessionService) gin.HandlerFunc {
 	}
 }
 
-func OptionalAuth(auth SessionService) gin.HandlerFunc {
+// RequireAuth blocks requests that do not have a user loaded by LoadSession.
+func RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := c.Cookie(SessionCookieName)
-		if err != nil {
-			c.Next()
+		if _, ok := c.Get(UserIDContextKey); !ok {
+			c.Redirect(http.StatusSeeOther, "/login")
+			c.Abort()
 			return
 		}
 
-		user, err := auth.ValidateSession(c.Request.Context(), token)
-		if err != nil {
-			slog.Warn("invalid session", "error", err)
-			ClearSessionCookie(c)
-			c.Next()
-			return
-		}
-
-		c.Set(UserIDContextKey, user.ID)
 		c.Next()
 	}
 }
