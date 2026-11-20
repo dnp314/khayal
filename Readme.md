@@ -18,6 +18,19 @@ should i use AI ? reasonably YES
 - date picker
 - slug instead of id
 
+# docker
+- database + migrations:
+  `docker compose up -d db`
+
+  migrations run automatically on first start of the db volume. To reset:
+  `docker compose down -v`
+- app (single arch, local):
+  `docker compose up --build`
+
+  serves http://localhost:8000, table `DATABASE_URL` env (defaults to localhost)
+- multiarch image (pushed to a registry):
+  `docker buildx build --platform linux/amd64,linux/arm64 -t <registry>/khayal:latest --push .`
+
 # dev
 - focus on infra: reliable: shuold perform as expected, scalable, maintainable: should be easy to add new features
 - observability

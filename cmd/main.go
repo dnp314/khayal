@@ -25,8 +25,11 @@ func main() {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 
 	ctx := context.Background()
-	urlExample := "postgres://khayal:khayal@localhost:5432/khayal"
-	conn, err := pgx.Connect(ctx, urlExample)
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		databaseURL = "postgres://khayal:khayal@localhost:5432/khayal"
+	}
+	conn, err := pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		slog.Error("unable to connect to database", "error", err)
 		os.Exit(1)

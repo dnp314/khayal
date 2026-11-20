@@ -1,0 +1,5 @@
+.git
+khayal
+*.md
+Dockerfile
+compose.yaml
