@@ -6,6 +6,7 @@ when a question is created, the return time would be null, But when a question i
 and in the case for display the question list at home page we only display the questions whose return time is exceeding the current time
 
 should i use AI ? reasonably YES
+caring is important !
 
 # issues
 - more than one khayal can be written at once
@@ -15,8 +16,19 @@ should i use AI ? reasonably YES
 # features
 - users
 - placeholder showing various questions
+- archive section for retiring questions
 - date picker
 - slug instead of id
+
+# dev
+- github actions on dev branch
+- focus on infra: reliable: should perform as expected, scalable, maintainable: should be easy to add new features
+- observability
+- logging/error handling: handled but have to take a look
+- migrations
+- dockerize: having a docker container for db with migrations would have helped
+- AGENTS.md
+- testing/profiling: table driven tests ?
 
 # docker
 - database + migrations:
@@ -30,14 +42,3 @@ should i use AI ? reasonably YES
   serves http://localhost:8000, table `DATABASE_URL` env (defaults to localhost)
 - multiarch image (pushed to a registry):
   `docker buildx build --platform linux/amd64,linux/arm64 -t <registry>/khayal:latest --push .`
-
-# dev
-- focus on infra: reliable: shuold perform as expected, scalable, maintainable: should be easy to add new features
-- observability
-- logging/error handling: handled but have to take a look
-- migrations
-- dockerize: having a docker container for db with migrations would have helped
-- AGENTS.md
-- testing/profiling: table driven tests ?
-
-caring is important !

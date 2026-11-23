@@ -1,15 +1,16 @@
 package components
 
 import "github.com/dnp314/khayal/internal/entities"
+import "github.com/dnp314/khayal/internal/slug"
 import "fmt"
 import "time"
 
-templ Khayals(khayals []entities.Khayal) {
+templ Khayals(khayals []entities.Khayal, question entities.Question) {
 
 	<div id="khayal-list">
 		for _, khayal := range khayals {
 			<div>
-				@Khayal(khayal)
+				@Khayal(khayal, question)
 			</div>
 		}
 	</div>
@@ -78,11 +79,11 @@ templ CreateKhayal(questionID int) {
 }
 
 
-templ Khayal(khayal entities.Khayal) {
+templ Khayal(khayal entities.Khayal, question entities.Question) {
 	<article class="khayal-card">
 		<a
 			class="khayal-card__link"
-			href={ fmt.Sprintf("/questions/%d/khayals/%d", khayal.QuestionID, khayal.ID) }
+			href={ fmt.Sprintf("/questions/%d/%s/khayals/%d/%s", question.ID, slug.Make(question.Question), khayal.ID, slug.Make(khayal.Khayal)) }
 		>
 			<span
 				class="khayal-card__preview"
@@ -93,9 +94,9 @@ templ Khayal(khayal entities.Khayal) {
 	</article>
 }
 
-templ KhayalPage(khayal entities.Khayal) {
+templ KhayalPage(khayal entities.Khayal, question entities.Question) {
 	@Layout("Khayal") {
-		<a class="back-link" href={ fmt.Sprintf("/questions/%d", khayal.QuestionID) }>
+		<a class="back-link" href={ fmt.Sprintf("/questions/%d/%s", question.ID, slug.Make(question.Question)) }>
 			← Back to question
 		</a>
 

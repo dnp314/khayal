@@ -43,6 +43,11 @@ func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 		return
 	}
 
+	userID, ok := requireUserID(ctx)
+	if !ok {
+		return
+	}
+
 	schedule := service.ReturnSchedule{
 		Mode: service.ReturnMode(ctx.PostForm("return_mode")),
 		Gap:  ctx.PostForm("return_gap"),
@@ -73,16 +78,19 @@ func (c *KhayalController) CreateKhayal(ctx *gin.Context) {
 		ctx.String(http.StatusInternalServerError, "Unable to load khayals")
 		return
 	}
-	if err := components.Khayals(khayals).Render(
+
+	question, err := c.questionService.GetQuestion(ctx, userID, questionID)
+	if err != nil {
+		slog.Error("get question after creating khayal", "question_id", questionID, "user_id", userID, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load question")
+		return
+	}
+
+	if err := components.Khayals(khayals, question).Render(
 		ctx.Request.Context(),
 		ctx.Writer,
 	); err != nil {
 		slog.Error("render khayals after creation", "question_id", questionID, "error", err)
-		return
-	}
-
-	userID, ok := requireUserID(ctx)
-	if !ok {
 		return
 	}
 
@@ -135,7 +143,14 @@ func (c *KhayalController) GetKhayal(ctx *gin.Context) {
 		return
 	}
 
-	if err := components.KhayalPage(khayal).Render(ctx.Request.Context(), ctx.Writer); err != nil {
+	question, err := c.questionService.GetQuestion(ctx, userID, questionID)
+	if err != nil {
+		slog.Error("get question for khayal", "khayal_id", khayalID, "question_id", questionID, "user_id", userID, "error", err)
+		ctx.String(http.StatusInternalServerError, "Unable to load question")
+		return
+	}
+
+	if err := components.KhayalPage(khayal, question).Render(ctx.Request.Context(), ctx.Writer); err != nil {
 		slog.Error("render khayal page", "khayal_id", khayalID, "question_id", questionID, "user_id", userID, "error", err)
 	}
 }

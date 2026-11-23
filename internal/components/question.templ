@@ -1,6 +1,7 @@
 package components
 
 import "github.com/dnp314/khayal/internal/entities"
+import "github.com/dnp314/khayal/internal/slug"
 import "fmt"
 
 
@@ -32,7 +33,7 @@ templ Question(question entities.Question, khayals []entities.Khayal){
 	</h1>
 
 	@CreateKhayal(question.ID)
-	@Khayals(khayals)
+	@Khayals(khayals, question)
 
 	}
 
@@ -45,7 +46,7 @@ templ QuestionPage(
 		<h2>{ question.Question }</h2>
 
 		@CreateKhayal(question.ID)
-		@Khayals(khayals)
+		@Khayals(khayals, question)
 	}
 }
 
@@ -72,7 +73,7 @@ templ Questions(questions []entities.Question) {
     >
 		for _, question := range questions {
 			<div >
-				 <a href={ fmt.Sprintf("/questions/%d", question.ID) }>{ question.Question }</a>
+				 <a href={ fmt.Sprintf("/questions/%d/%s", question.ID, slug.Make(question.Question)) }>{ question.Question }</a>
 			</div>
 		}
 	</div>

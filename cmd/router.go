@@ -32,10 +32,12 @@ func createRouter(c Controllers, sessionService middleware.SessionService) *gin.
 	authenticated.Use(middleware.RequireAuth())
 	{
 		authenticated.GET("/questions/:questionID", c.Questions.GetQuestion)
+		authenticated.GET("/questions/:questionID/:questionSlug", c.Questions.GetQuestion)
 		authenticated.GET("/questions", c.Questions.GetAllQuestions)
 		authenticated.POST("/questions", c.Questions.CreateQuestion)
 		authenticated.POST("/questions/:questionID/khayals", c.Khayals.CreateKhayal)
 		authenticated.GET("/questions/:questionID/khayals/:khayalID", c.Khayals.GetKhayal)
+		authenticated.GET("/questions/:questionID/:questionSlug/khayals/:khayalID/:khayalSlug", c.Khayals.GetKhayal)
 		authenticated.POST("/logout", c.Auth.Logout)
 		// patch or put for updating question ?
 	}
