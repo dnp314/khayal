@@ -32,7 +32,9 @@ templ Question(question entities.Question, khayals []entities.Khayal){
 	{question.Question}
 	</h1>
 
-	@CreateKhayal(question.ID)
+	if canAnswerQuestion(question) {
+		@CreateKhayal(question.ID)
+	}
 	@Khayals(khayals, question)
 
 	}
@@ -45,7 +47,9 @@ templ QuestionPage(
 		@Layout(question.Question) {
 		<h2>{ question.Question }</h2>
 
-		@CreateKhayal(question.ID)
+		if canAnswerQuestion(question) {
+			@CreateKhayal(question.ID)
+		}
 		@Khayals(khayals, question)
 	}
 }

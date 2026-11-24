@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/dnp314/khayal/internal/entities"
@@ -37,18 +38,24 @@ func (r *QuestionRepository) CreateQuestion(ctx context.Context, userID int, que
 
 func (r *QuestionRepository) GetQuestion(ctx context.Context, userID, id int) (entities.Question, error) {
 	var question entities.Question
+	var returnAt sql.NullTime
 	err := r.db.QueryRow(
 		ctx,
-		"SELECT id, user_id, question, answered FROM questions where id=($1) and user_id=($2)",
+		"SELECT id, user_id, question, answered, return_at FROM questions where id=($1) and user_id=($2)",
 		id, userID,
 	).Scan(
 		&question.ID,
 		&question.UserID,
 		&question.Question,
 		&question.Answered,
+		&returnAt,
 	)
 	if err != nil {
 		return entities.Question{}, fmt.Errorf("get question %d for user %d: %w", id, userID, err)
+	}
+	if returnAt.Valid {
+		t := returnAt.Time
+		question.ReturnAt = &t
 	}
 
 	return question, nil

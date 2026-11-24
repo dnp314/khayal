@@ -12,6 +12,7 @@ caring is important !
 - more than one khayal can be written at once
 - plain text contents stored in db: solution created on a separate branch: first self hostable release
 - timezone: store in UTC and while displaying localize
+- backend auth is missing
 
 # features
 - users
